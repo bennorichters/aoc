@@ -30,15 +30,8 @@ extension ParseToString on Instruction {
   String toShortString() => toString().split('.').last;
 }
 
-Instruction nextInstruction(String line) {
-  for (Instruction ins in Instruction.values) {
-    if (line.startsWith(ins.toShortString())) {
-      return ins;
-    }
-  }
-
-  throw Exception("no valid instruction found");
-}
+Instruction nextInstruction(String line) => Instruction.values
+  .firstWhere((e) => line.startsWith(e.toShortString()));
 
 class CubeCoordinate {
   final int x, y, z;
