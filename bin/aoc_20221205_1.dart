@@ -5,7 +5,7 @@ void main(List<String> arguments) {
   var lines = File('./in').readAsLinesSync();
 
   Set<Coordinate> hit = {};
-  Set<Coordinate> double = {};
+  Set<Coordinate> overlap = {};
   for (var line in lines) {
     var parts = line.split(' -> ');
     var start = pairToCoord(parts[0]);
@@ -14,12 +14,12 @@ void main(List<String> arguments) {
     if (start.x == end.x || start.y == end.y) {
       var steps = lineCoords(start, end);
       for (var step in steps) {
-        if (!hit.add(step)) double.add(step);
+        if (!hit.add(step)) overlap.add(step);
       }
     }
   }
 
-  print(double.length);
+  print(overlap.length);
 }
 
 class Coordinate {
