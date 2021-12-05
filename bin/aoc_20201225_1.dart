@@ -1,5 +1,3 @@
-import 'dart:io';
-
 void main(List<String> arguments) {
   // const pkCard = 5764801;
   // const pkDoor = 17807724;
@@ -12,8 +10,8 @@ void main(List<String> arguments) {
 
   int findLoopSize(int publicKey) {
     const subject = 7;
-    int val = 1;
-    int result = 0;
+    var val = 1;
+    var result = 0;
     while (val != publicKey) {
       result++;
       val = step(val, subject);
@@ -23,7 +21,7 @@ void main(List<String> arguments) {
   }
 
   int calcKey(int loopSize, int subject) {
-    int result = 1;
+    var result = 1;
     for (var i = 0; i < loopSize; i++) {
       result = step(result, subject);
     }
@@ -31,8 +29,8 @@ void main(List<String> arguments) {
     return result;
   }
 
-  int lsCard = findLoopSize(pkCard);
-  int lsDoor = findLoopSize(pkDoor);
+  var lsCard = findLoopSize(pkCard);
+  var lsDoor = findLoopSize(pkDoor);
   print(calcKey(lsCard, pkDoor));
   print(calcKey(lsDoor, pkCard));
 }
