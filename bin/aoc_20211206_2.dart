@@ -4,7 +4,7 @@ void main() {
   var result = fishes.fold(
       0,
       (int previousValue, int element) =>
-          (previousValue + offspring(Point(element, 256))));
+          previousValue + offspring(Point(element, 256)));
 
   print(result);
 }
