@@ -1,10 +1,10 @@
 import 'dart:math';
 
 void main() {
-  var result = 0;
-  for (var fish in fishes) {
-    result += offspring(Point(fish, 256));
-  }
+  var result = fishes.fold(
+      0,
+      (int previousValue, int element) =>
+          (previousValue + offspring(Point(element, 256))));
 
   print(result);
 }
