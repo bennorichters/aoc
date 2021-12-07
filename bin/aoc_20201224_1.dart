@@ -1,8 +1,8 @@
 import 'dart:io';
 
 void main(List<String> arguments) {
-  // var lines = File('./tin').readAsLinesSync();
-  var lines = File('./in').readAsLinesSync();
+  var lines = File('./tin').readAsLinesSync();
+  // var lines = File('./in').readAsLinesSync();
 
   Set<CubeCoordinate> turned = {};
   for (var line in lines) {
