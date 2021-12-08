@@ -27,30 +27,29 @@ void main() {
     var parts = line.split('|');
     var signalPatterns = parts[0].trim().split(' ');
     var output = parts[1].trim().split(' ');
-    for (var wiring in all) {
-      Set<int> patternNumbers = {};
-      for (var pattern in signalPatterns) {
-        var r = outputToInt(wiring, pattern.split(''));
-        if (r == -1) {
-          break;
-        }
-        patternNumbers.add(r);
-        if (patternNumbers.length == 10) {
-          print('$wiring, $patternNumbers');
-          var number = 0;
-          for (var value in output) {
-            var digit = outputToInt(wiring, value.split(''));
-            number *= 10;
-            number += digit;
-          }
-          print(number);
-          result += number;
-        }
-      }
+    var wiring = all.firstWhere((e) => patternMatches(e, signalPatterns));
+    var number = 0;
+    for (var value in output) {
+      var digit = outputToInt(wiring, value.split(''));
+      number *= 10;
+      number += digit;
     }
+    print(number);
+    result += number;
   }
 
   print('answer: $result');
+}
+
+bool patternMatches(List<String> wiring, List<String> signalPatterns) {
+  Set<int> patternNumbers = {};
+  for (var pattern in signalPatterns) {
+    var r = outputToInt(wiring, pattern.split(''));
+    if (r == -1) return false;
+    patternNumbers.add(r);
+  }
+
+  return patternNumbers.length == 10;
 }
 
 int outputToInt(List<String> wiring, List<String> output) {
