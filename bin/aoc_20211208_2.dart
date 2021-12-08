@@ -3,7 +3,7 @@ import 'package:collection/collection.dart';
 
 const segments = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
-const normalWiring = [
+const normalWiringDigits = [
   {'a', 'b', 'c', 'e', 'f', 'g'},
   {'c', 'f'},
   {'a', 'c', 'd', 'e', 'g'},
@@ -55,7 +55,7 @@ int valueToInt(List<String> wiring, List<String> value) {
   Set<String> translated =
       value.map((e) => segments[wiring.indexOf(e)]).toSet();
 
-  return normalWiring
+  return normalWiringDigits
       .indexWhere((element) => SetEquality().equals(element, translated));
 }
 
