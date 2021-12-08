@@ -19,20 +19,20 @@ const normalWiring = [
 void main() {
   var all = allPossibleWirings();
 
-  // var lines = File('./tin').readAsLinesSync();
-  var lines = File('./in').readAsLinesSync();
+  var lines = File('./tin').readAsLinesSync();
+  // var lines = File('./in').readAsLinesSync();
 
   var result = 0;
   for (var line in lines) {
     var parts = line.split('|');
     var signalPatterns = parts[0].trim().split(' ');
     var output = parts[1].trim().split(' ');
+
     var wiring = all.firstWhere((e) => patternMatches(e, signalPatterns));
     var number = 0;
     for (var value in output) {
-      var digit = outputToInt(wiring, value.split(''));
       number *= 10;
-      number += digit;
+      number += valueToInt(wiring, value.split(''));
     }
     print(number);
     result += number;
@@ -42,19 +42,18 @@ void main() {
 }
 
 bool patternMatches(List<String> wiring, List<String> signalPatterns) {
-  Set<int> patternNumbers = {};
+  Set<int> zeroToTen = {};
   for (var pattern in signalPatterns) {
-    var r = outputToInt(wiring, pattern.split(''));
-    if (r == -1) return false;
-    patternNumbers.add(r);
+    var r = valueToInt(wiring, pattern.split(''));
+    if (r == -1 || !zeroToTen.add(r)) return false;
   }
 
-  return patternNumbers.length == 10;
+  return true;
 }
 
-int outputToInt(List<String> wiring, List<String> output) {
+int valueToInt(List<String> wiring, List<String> value) {
   Set<String> translated =
-      output.map((e) => segments[wiring.indexOf(e)]).toSet();
+      value.map((e) => segments[wiring.indexOf(e)]).toSet();
 
   return normalWiring
       .indexWhere((element) => SetEquality().equals(element, translated));
