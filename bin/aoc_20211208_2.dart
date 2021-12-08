@@ -32,7 +32,7 @@ void main() {
     var number = 0;
     for (var value in output) {
       number *= 10;
-      number += valueToInt(wiring, value.split(''));
+      number += valueToDigit(wiring, value.split(''));
     }
     print(number);
     result += number;
@@ -44,14 +44,14 @@ void main() {
 bool patternMatches(List<String> wiring, List<String> signalPatterns) {
   Set<int> zeroToTen = {};
   for (var pattern in signalPatterns) {
-    var r = valueToInt(wiring, pattern.split(''));
+    var r = valueToDigit(wiring, pattern.split(''));
     if (r == -1 || !zeroToTen.add(r)) return false;
   }
 
   return true;
 }
 
-int valueToInt(List<String> wiring, List<String> value) {
+int valueToDigit(List<String> wiring, List<String> value) {
   Set<String> translated =
       value.map((e) => segments[wiring.indexOf(e)]).toSet();
 
