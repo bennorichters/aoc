@@ -5,23 +5,31 @@ void main() {
   // var lines = File('./tin').readAsLinesSync();
   var lines = File('./in').readAsLinesSync();
 
-  var maxX = lines[0].length;
-  var maxY = lines.length;
+  var maxX = lines[0].length - 1;
+  var maxY = lines.length - 1;
+
   var heightmap = <Point, num>{};
-  for (int x = 0; x < maxX; x++) {
-    for (int y = 0; y < maxY; y++) {
+  for (int x = 0; x <= maxX; x++) {
+    for (int y = 0; y <= maxY; y++) {
       heightmap[Point(x, y)] = int.parse((lines[y].split(''))[x]);
     }
+  }
+
+  Set<Point> neighbours(Point p) {
+    Set<Point> result = {};
+    if (p.x > 0) result.add(Point(p.x - 1, p.y));
+    if (p.x < maxX) result.add(Point(p.x + 1, p.y));
+    if (p.y > 0) result.add(Point(p.x, p.y - 1));
+    if (p.y < maxY) result.add(Point(p.x, p.y + 1));
+
+    return result;
   }
 
   Set<Point> basins = {};
   for (Point p in heightmap.keys) {
     var height = heightmap[p]!;
-    var ns = neighbours(p, maxX - 1, maxY - 1);
-    var count = 0;
-    for (var n in ns) {
-      if (height < heightmap[n]!) count++;
-    }
+    var ns = neighbours(p);
+    var count = ns.where((e) => height < heightmap[e]!).length;
     if (count == ns.length) basins.add(p);
   }
 
@@ -33,7 +41,7 @@ void main() {
       for (var n in ns) {
         if (heightmap[n]! != 9) {
           result++;
-          var recNs = neighbours(n, maxX - 1, maxY - 1);
+          var recNs = neighbours(n);
           recNs = recNs.difference(visited);
           visited.addAll(recNs);
           sbRec(recNs);
@@ -54,15 +62,5 @@ void main() {
   }
 
   print(result.reduce((p, v) => p * v));
-}
-
-Set<Point> neighbours(Point p, int maxX, int maxY) {
-  Set<Point> result = {};
-  if (p.x > 0) result.add(Point(p.x - 1, p.y));
-  if (p.x < maxX) result.add(Point(p.x + 1, p.y));
-  if (p.y > 0) result.add(Point(p.x, p.y - 1));
-  if (p.y < maxY) result.add(Point(p.x, p.y + 1));
-
-  return result;
 }
 
