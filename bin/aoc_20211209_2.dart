@@ -10,8 +10,8 @@ void main() {
 
   var heightmap = (() {
     var result = <Point, num>{};
-    for (int x = 0; x <= maxX; x++) {
-      for (int y = 0; y <= maxY; y++) {
+    for (var x = 0; x <= maxX; x++) {
+      for (var y = 0; y <= maxY; y++) {
         result[Point(x, y)] = int.parse((lines[y].split(''))[x]);
       }
     }
@@ -40,7 +40,7 @@ void main() {
   })();
 
   int sizeBasin(Point p) {
-    int result = 0;
+    var result = 0;
     Set<Point> visited = {};
 
     void sbRec(Set<Point> ns) {
@@ -62,7 +62,7 @@ void main() {
 
   var result = [0, 0, 0];
   for (Point p in basins) {
-    int size = sizeBasin(p);
+    var size = sizeBasin(p);
     var i = result.indexWhere((e) => size > e);
     if (i > -1) result[i] = size;
   }
