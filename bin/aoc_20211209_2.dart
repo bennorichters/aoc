@@ -8,12 +8,15 @@ void main() {
   var maxX = lines[0].length - 1;
   var maxY = lines.length - 1;
 
-  var heightmap = <Point, num>{};
-  for (int x = 0; x <= maxX; x++) {
-    for (int y = 0; y <= maxY; y++) {
-      heightmap[Point(x, y)] = int.parse((lines[y].split(''))[x]);
+  var heightmap = (() {
+    var result = <Point, num>{};
+    for (int x = 0; x <= maxX; x++) {
+      for (int y = 0; y <= maxY; y++) {
+        result[Point(x, y)] = int.parse((lines[y].split(''))[x]);
+      }
     }
-  }
+    return result;
+  })();
 
   Set<Point> neighbours(Point p) {
     Set<Point> result = {};
@@ -25,13 +28,16 @@ void main() {
     return result;
   }
 
-  Set<Point> basins = {};
-  for (Point p in heightmap.keys) {
-    var height = heightmap[p]!;
-    var ns = neighbours(p);
-    var count = ns.where((e) => height < heightmap[e]!).length;
-    if (count == ns.length) basins.add(p);
-  }
+  Set<Point> basins = (() {
+    var result = <Point>{};
+    for (Point p in heightmap.keys) {
+      var height = heightmap[p]!;
+      var ns = neighbours(p);
+      var count = ns.where((e) => height < heightmap[e]!).length;
+      if (count == ns.length) result.add(p);
+    }
+    return result;
+  })();
 
   int sizeBasin(Point p) {
     int result = 0;
@@ -63,4 +69,3 @@ void main() {
 
   print(result.reduce((p, v) => p * v));
 }
-
