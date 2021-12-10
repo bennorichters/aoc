@@ -26,8 +26,7 @@ void main() {
 }
 
 String unclosedPart(String line) {
-  var i = 0;
-  while (i < line.length) {
+  for (var i = 0; i < line.length;) {
     String char = line.substring(i, i + 1);
     if (closers.contains(char)) {
       if (i == 0) return char;

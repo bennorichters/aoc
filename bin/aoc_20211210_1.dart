@@ -11,15 +11,14 @@ void main() {
   int score = 0;
   for (var line in lines) {
     var offender = findOffender(line);
-    if (closers.contains(offender)) score += scores[closers.indexOf(offender)];
+    if (offender.isNotEmpty) score += scores[closers.indexOf(offender)];
   }
 
   print(score);
 }
 
 String findOffender(String line) {
-  var i = 0;
-  while (i < line.length) {
+  for (var i = 0; i < line.length;) {
     String char = line.substring(i, i + 1);
     if (closers.contains(char)) {
       if (i == 0) return char;
