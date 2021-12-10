@@ -40,7 +40,7 @@ void main() {
 
   int sizeBasin(Point p) {
     var result = 0;
-    var visited = <Point>{};
+    var visited = {p};
 
     void sbRec(Set<Point> ns) {
       for (var n in ns) {
@@ -54,7 +54,6 @@ void main() {
       }
     }
 
-    visited.add(p);
     sbRec({p});
     return result;
   }
