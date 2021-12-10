@@ -29,7 +29,7 @@ String unclosedPart(String line) {
   for (var i = 0; i < line.length;) {
     String char = line.substring(i, i + 1);
     if (closers.contains(char)) {
-      if (i == 0) return char;
+      if (i == 0) return '';
       var ci = closers.indexOf(char);
       if (line.substring(i - 1, i) != openers[ci]) return '';
 
