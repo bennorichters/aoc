@@ -14,9 +14,8 @@ void main() {
       var rest = unclosed.split('').reversed;
       var score = 0;
       for (String b in rest) {
-        var plus = openers.indexOf(b) + 1;
         score *= 5;
-        score += plus;
+        score += openers.indexOf(b) + 1;
       }
       scores.add(score);
     }
