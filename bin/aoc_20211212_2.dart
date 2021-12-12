@@ -11,12 +11,12 @@ void main(List<String> arguments) {
     caveMap.putIfAbsent(parts[1], () => <String>{}).add(parts[0]);
   }
 
-  List<List<String>> walk() {
-    List<List<String>> result = [];
+  int walk() {
+    var result = 0;
 
     void rec(List<String> path, bool twiceSmall) {
       if (path.last == 'end') {
-        result.add(path);
+        result++;
         return;
       }
 
@@ -34,6 +34,5 @@ void main(List<String> arguments) {
     return result;
   }
 
-  var paths = walk();
-  print(paths.length);
+  print(walk());
 }
