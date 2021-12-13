@@ -34,8 +34,8 @@ void main(List<String> arguments) {
     result = Set.of(folded);
   }
 
-  var maxX = result.fold(0, (int prev, e) => max<int>(prev, e.x.truncate()));
-  var maxY = result.fold(0, (int prev, e) => max<int>(prev, e.y.truncate()));
+  var maxX = result.fold(0, (num prev, e) => max<num>(prev, e.x));
+  var maxY = result.fold(0, (num prev, e) => max<num>(prev, e.y));
 
   for (var y = 0; y <= maxY; y++) {
     var line = '';
