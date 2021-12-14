@@ -5,14 +5,9 @@ void main(List<String> arguments) {
   // var lines = File('./tin').readAsLinesSync();
   var lines = File('./in').readAsLinesSync();
 
-  var instructions = {};
-  for (int i = 2; i < lines.length; i++) {
-    var parts = lines[i].split(' -> ');
-    instructions[parts[0]] = parts[1];
-  }
-
   var start = lines[0];
-  var combiCount = calcCombiCount(start);
+  var combiCount = combiCountFromLine(start);
+  var instructions = parseInstructions(lines.getRange(2, lines.length));
 
   for (int i = 0; i < 40; i++) {
     var fCombiCount = <String, int>{};
@@ -46,15 +41,23 @@ void main(List<String> arguments) {
   print(maxC - minC);
 }
 
-Map<String, int> calcCombiCount(String start) {
-  var combiCount = <String, int>{};
-  for (int i = 0; i < start.length - 1; i++) {
-    var combi = start.substring(i, i + 2);
-    if (!combiCount.containsKey(combi)) {
-      combiCount[combi] = 0;
-    }
-    combiCount[combi] = combiCount[combi]! + 1;
+Map<String, String> parseInstructions(Iterable<String> lines) {
+  var result = <String, String>{};
+  for (var line in lines) {
+    var parts = line.split(' -> ');
+    result[parts[0]] = parts[1];
   }
 
-  return combiCount;
+  return result;
+}
+
+Map<String, int> combiCountFromLine(String start) {
+  var result = <String, int>{};
+  for (int i = 0; i < start.length - 1; i++) {
+    var combi = start.substring(i, i + 2);
+    if (!result.containsKey(combi)) result[combi] = 0;
+    result[combi] = result[combi]! + 1;
+  }
+
+  return result;
 }
