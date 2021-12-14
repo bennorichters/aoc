@@ -19,18 +19,23 @@ void main(List<String> arguments) {
       .join(','));
 }
 
+bool isValidMapping(Data data, Map<String, String> candidate) {
+  for (var food in data.foods) {
+    for (var al in food.allergens) {
+      if (candidate.values.contains(al)) {
+        var ing = candidate.keys.firstWhere((e) => candidate[e] == al);
+        if (!food.ingredients.contains(ing)) return false;
+      }
+    }
+  }
+
+  return true;
+}
+
 Map<String, String> ingAlMap(Data data) {
   Map<String, String>? test(Map<String, String> candidate, int foodIndex) {
     if (foodIndex == data.foods.length) return candidate;
-
-    for (var food in data.foods) {
-      for (var al in food.allergens) {
-        if (candidate.values.contains(al)) {
-          var ing = candidate.keys.firstWhere((e) => candidate[e] == al);
-          if (!food.ingredients.contains(ing)) return null;
-        }
-      }
-    }
+    if (!isValidMapping(data, candidate)) return null;
 
     var food = data.foods[foodIndex];
 
