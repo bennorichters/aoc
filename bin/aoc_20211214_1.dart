@@ -34,16 +34,14 @@ void main(List<String> arguments) {
   }
 
   var result = <String, int>{};
+  result[start.substring(start.length - 1)] = 1;
   for (var combi in combiCount.keys) {
     var c = combi.substring(0, 1);
-    if (!result.containsKey(c)) {
-      result[c] = 0;
-    }
+    if (!result.containsKey(c)) result[c] = 0;
     result[c] = result[c]! + combiCount[combi]!;
   }
 
-  var maxC = result.keys.fold(
-      0, (int prev, e) => max(prev, result[e]! + (start.endsWith(e) ? 1 : 0)));
+  var maxC = result.keys.fold(0, (int prev, e) => max(prev, result[e]!));
   var minC = result.keys.fold(maxC, (int prev, e) => min(prev, result[e]!));
 
   print(minC);
