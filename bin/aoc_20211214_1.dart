@@ -17,12 +17,9 @@ void main(List<String> arguments) {
   for (int i = 0; i < 40; i++) {
     var fCombiCount = <String, int>{};
     for (var combi in combiCount.keys) {
-      var p1 = combi.substring(0, 1);
-      var p2 = combi.substring(1, 2);
-
       var insert = instructions[combi]!;
-      var c1 = p1 + insert;
-      var c2 = insert + p2;
+      var c1 = combi.substring(0, 1) + insert;
+      var c2 = insert + combi.substring(1, 2);
 
       if (!fCombiCount.containsKey(c1)) fCombiCount[c1] = 0;
       if (!fCombiCount.containsKey(c2)) fCombiCount[c2] = 0;
