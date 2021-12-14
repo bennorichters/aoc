@@ -143,19 +143,5 @@ Data parseData(List<String> lines) {
     foods.add(Food(foodIn, foodAl));
   }
 
-  foods.sort((a, b) {
-    if (a.allergens.length != b.allergens.length) {
-      return a.allergens.length - b.allergens.length;
-    }
-
-    for (int i = 0; i < a.allergens.length; i++) {
-      if (a.allergens[i] != b.allergens[i]) {
-        return a.allergens[i].compareTo(b.allergens[i]);
-      }
-    }
-
-    return a.ingredients.length - b.ingredients.length;
-  });
-
   return Data(ingredients.toList(), allergens.toList(), foods);
 }
