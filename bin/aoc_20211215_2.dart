@@ -1,11 +1,12 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:collection/collection.dart';
 
 // Only second puzzle
 
 void main(List<String> arguments) {
-  var lines = File('./tin').readAsLinesSync();
-  // var lines = File('./in').readAsLinesSync();
+  // var lines = File('./tin').readAsLinesSync();
+  var lines = File('./in').readAsLinesSync();
 
   var blockSize = lines[0].length;
   var dangerMap = parseDangerMap(lines, blockSize);
@@ -23,27 +24,36 @@ void main(List<String> arguments) {
   }
 
   int findPath() {
-    var end = Point(endOfGrid, endOfGrid);
     var start = Point(0, 0);
     var minDanger = <Point, int>{start: 0};
-    var stack = <Point>[start];
+    var stack = PriorityQueue<Node>()..add(Node(start, 0));
 
     while (stack.isNotEmpty) {
-      var node = stack.removeAt(0);
-      var ns = neighbours(node);
+      var node = stack.removeFirst();
+      var ns = neighbours(node.point);
       for (var n in ns) {
-        var totalDanger = minDanger[node]! + dangerMap[n]!;
+        var totalDanger = minDanger[node.point]! + dangerMap[n]!;
         if (!minDanger.containsKey(n) || totalDanger < minDanger[n]!) {
           minDanger[n] = totalDanger;
-          if (n != end && !stack.contains(n)) stack.add(n);
+          stack.add(Node(n, (totalDanger + 2 * endOfGrid - n.x - n.y).floor()));
         }
       }
     }
 
-    return minDanger[end]!;
+    return minDanger[Point(endOfGrid, endOfGrid)]!;
   }
 
   print(findPath());
+}
+
+class Node implements Comparable {
+  final Point point;
+  final int estimate;
+
+  Node(this.point, this.estimate);
+
+  @override
+  int compareTo(other) => (estimate - other.estimate).floor();
 }
 
 Map<Point, int> parseDangerMap(List<String> lines, int blockSize) {
