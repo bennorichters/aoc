@@ -4,8 +4,8 @@ import 'dart:math';
 // Only second puzzle
 
 void main(List<String> arguments) {
-  var lines = File('./tin').readAsLinesSync();
-  // var lines = File('./in').readAsLinesSync();
+  // var lines = File('./tin').readAsLinesSync();
+  var lines = File('./in').readAsLinesSync();
 
   var blockWidth = lines[0].length;
   var blockHeight = lines.length;
@@ -28,54 +28,27 @@ void main(List<String> arguments) {
 
   int findPath() {
     final end = Point(maxX, maxY);
-    int lowDanger = -1;
 
     var start = Point(0, 0);
-    var minDanger = <Point, int>{start: 1};
-    var stack = [
-      Path([start], 0)
-    ];
+    var minDanger = <Point, int>{start: 0};
+    var stack = <Point>[start];
 
     while (stack.isNotEmpty) {
-      var path = stack.removeAt(0);
-      if (path.last == end && (lowDanger == -1 || path.danger < lowDanger)) {
-        lowDanger = path.danger;
-      } else if (path.danger <= minDanger[path.points.last]!) {
-        var ns = neighbours(path.last).where((e) => !path.contains(e));
-        for (var n in ns) {
-          var totalDanger = path.danger + dangerMap[n]!;
-          if (!minDanger.containsKey(n) || totalDanger < minDanger[n]!) {
-            minDanger[n] = totalDanger;
-            stack.add(path.copy(n, totalDanger));
-          }
+      var node = stack.removeAt(0);
+      var ns = neighbours(node);
+      for (var n in ns) {
+        var totalDanger = minDanger[node]! + dangerMap[n]!;
+        if (!minDanger.containsKey(n) || totalDanger < minDanger[n]!) {
+          minDanger[n] = totalDanger;
+          stack.add(n);
         }
       }
     }
 
-    return lowDanger;
+    return minDanger[end]!;
   }
 
   print(findPath());
-}
-
-class Path {
-  final List<Point> points;
-  final int danger;
-
-  Path(this.points, this.danger);
-
-  Path copy(Point tail, int cDanger) {
-    var cPoints = List.of(points);
-    cPoints.add(tail);
-    return Path(cPoints, cDanger);
-  }
-
-  Point get last => points.last;
-
-  bool contains(Point point) => points.contains(point);
-
-  @override
-  String toString() => '$danger $points';
 }
 
 Map<Point, int> parseDangerMap(
