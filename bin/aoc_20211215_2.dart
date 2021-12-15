@@ -4,8 +4,8 @@ import 'dart:math';
 // Only second puzzle
 
 void main(List<String> arguments) {
-  // var lines = File('./tin').readAsLinesSync();
-  var lines = File('./in').readAsLinesSync();
+  var lines = File('./tin').readAsLinesSync();
+  // var lines = File('./in').readAsLinesSync();
 
   var blockWidth = lines[0].length;
   var blockHeight = lines.length;
@@ -40,7 +40,7 @@ void main(List<String> arguments) {
         var totalDanger = minDanger[node]! + dangerMap[n]!;
         if (!minDanger.containsKey(n) || totalDanger < minDanger[n]!) {
           minDanger[n] = totalDanger;
-          stack.add(n);
+          if (!stack.contains(n)) stack.add(n);
         }
       }
     }
