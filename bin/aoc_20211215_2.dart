@@ -46,10 +46,7 @@ void main(List<String> arguments) {
   print(findPath());
 }
 
-Map<Point, int> parseDangerMap(
-  List<String> lines,
-  int blockSize,
-) {
+Map<Point, int> parseDangerMap(List<String> lines, int blockSize) {
   var dangerMap = <Point, int>{};
   for (var y = 0; y < blockSize; y++) {
     for (var x = 0; x < blockSize; x++) {
