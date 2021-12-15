@@ -27,8 +27,6 @@ void main(List<String> arguments) {
   }
 
   int findPath() {
-    final end = Point(maxX, maxY);
-
     var start = Point(0, 0);
     var minDanger = <Point, int>{start: 0};
     var stack = <Point>[start];
@@ -45,7 +43,7 @@ void main(List<String> arguments) {
       }
     }
 
-    return minDanger[end]!;
+    return minDanger[Point(maxX, maxY)]!;
   }
 
   print(findPath());
