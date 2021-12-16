@@ -60,8 +60,8 @@ ParsedOperator parseOperatorType1(String input) {
   for (int i = 0; i < subPackCount; i++) {
     var p = parseInput(input);
     values.add(p.value);
-    input = input.substring(p.bitsConsumed);
     consumed += p.bitsConsumed;
+    input = input.substring(p.bitsConsumed);
   }
 
   return ParsedOperator(values, consumed);
