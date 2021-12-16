@@ -80,12 +80,6 @@ ParsedData parseLiteral(String input) {
   return ParsedData(int.parse(bin, radix: 2), index);
 }
 
-class ParsedOperator {
-  final List<int> values;
-  final int bitsConsumed;
-  ParsedOperator(this.values, this.bitsConsumed);
-}
-
 int calcResult(List<int> values, int type) {
   if (type == 0) return values.reduce((a, b) => a + b);
   if (type == 1) return values.fold(1, (a, b) => a * b);
@@ -107,6 +101,12 @@ class ParsedData {
   String toString() => 'value=$value bitsConsumed=$bitsConsumed';
 }
 
+class ParsedOperator {
+  final List<int> values;
+  final int bitsConsumed;
+  ParsedOperator(this.values, this.bitsConsumed);
+}
+
 String parseToBinary() {
   var total = BigInt.from(0);
   var base = BigInt.from(16);
@@ -122,5 +122,5 @@ String parseToBinary() {
   var result = total.toRadixString(2);
   var rest = result.length % 4;
   var times = rest == 0 ? 0 : 4 - rest;
-  return  '0' * times + result;
+  return '0' * times + result;
 }
