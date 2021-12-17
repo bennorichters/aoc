@@ -39,7 +39,7 @@ TestResult testVelocities(int vx, int vy) {
   int y = 0;
 
   int maxY = 0;
-  while (x <= maxTx && y >= minTy && (vx > 0 || (x >= minTx && x <= maxTx))) {
+  while (x <= maxTx && y >= minTy && (vx > 0 || x >= minTx)) {
     if (x >= minTx && y <= maxTy) return TestResult(true, maxY, x, y, vx, vy);
     x += vx;
     y += vy;
