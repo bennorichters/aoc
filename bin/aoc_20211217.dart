@@ -34,13 +34,13 @@ void main(List<String> arguments) {
   print(count);
 }
 
-Trajectory testVelocities(int vx, int vy) {
+TestResult testVelocities(int vx, int vy) {
   int x = 0;
   int y = 0;
 
   int maxY = 0;
   while (x <= maxTx && y >= minTy && (vx > 0 || (x >= minTx && x <= maxTx))) {
-    if (x >= minTx && y <= maxTy) return Trajectory(true, maxY, x, y, vx, vy);
+    if (x >= minTx && y <= maxTy) return TestResult(true, maxY, x, y, vx, vy);
     x += vx;
     y += vy;
 
@@ -50,17 +50,17 @@ Trajectory testVelocities(int vx, int vy) {
     vy--;
   }
 
-  return Trajectory(false, maxY, x, y, vx, vy);
+  return TestResult(false, maxY, x, y, vx, vy);
 }
 
-class Trajectory {
+class TestResult {
   final bool hit;
   final int maxY;
   final int x;
   final int y;
   final int vx;
   final int vy;
-  Trajectory(this.hit, this.maxY, this.x, this.y, this.vx, this.vy);
+  TestResult(this.hit, this.maxY, this.x, this.y, this.vx, this.vy);
 
   @override
   String toString() =>
