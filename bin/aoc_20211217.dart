@@ -13,19 +13,18 @@ const minTy = -90;
 const maxTy = -57;
 
 void main(List<String> arguments) {
-  int maxY = -minTy - 1;
+  int maxY = 0;
   int count = 0;
   for (var vx = 0; vx <= maxTx; vx++) {
     var vy = minTy;
-    var ongoing = true;
-    while (ongoing) {
-      var t = testVelocities(vx, vy);
-      if (t.hit) {
-        maxY = max(maxY, t.maxY);
+    var p = Probe(false, 0, 0, 0, vx, vy);
+    while (p.x <= maxTx && (p.vx > 0 || (p.x >= minTx && p.vy >= minTy))) {
+      p = testVelocities(vx, vy);
+      if (p.hit) {
+        maxY = max(maxY, p.maxY);
         count++;
       }
-
-      ongoing = t.x <= maxTx && (t.vx > 0 || (t.x >= minTx && t.vy >= minTy));
+      
       vy++;
     }
   }
@@ -34,13 +33,13 @@ void main(List<String> arguments) {
   print(count);
 }
 
-TestResult testVelocities(int vx, int vy) {
+Probe testVelocities(int vx, int vy) {
   int x = 0;
   int y = 0;
 
   int maxY = 0;
   while (x <= maxTx && y >= minTy && (vx > 0 || x >= minTx)) {
-    if (x >= minTx && y <= maxTy) return TestResult(true, maxY, x, y, vx, vy);
+    if (x >= minTx && y <= maxTy) return Probe(true, maxY, x, y, vx, vy);
     x += vx;
     y += vy;
 
@@ -50,17 +49,17 @@ TestResult testVelocities(int vx, int vy) {
     vy--;
   }
 
-  return TestResult(false, maxY, x, y, vx, vy);
+  return Probe(false, maxY, x, y, vx, vy);
 }
 
-class TestResult {
+class Probe {
   final bool hit;
   final int maxY;
   final int x;
   final int y;
   final int vx;
   final int vy;
-  TestResult(this.hit, this.maxY, this.x, this.y, this.vx, this.vy);
+  Probe(this.hit, this.maxY, this.x, this.y, this.vx, this.vy);
 
   @override
   String toString() =>
