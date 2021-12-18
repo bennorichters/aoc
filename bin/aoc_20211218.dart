@@ -51,7 +51,7 @@ int magnitude(Pair p) {
 
 void reduce(Pair root) {
   while (true) {
-    var n = findNested(root);
+    var n = findPairToExplode(root);
     if (n != null) {
       explode(n);
       continue;
@@ -85,6 +85,17 @@ void split(Number nr) {
   right.parent = replacer;
 
   replaceParent(nr, replacer);
+}
+
+Pair? findPairToExplode(Element e, [int level = 0]) {
+  if (e is Number) return null;
+  if (level == 4) return (e as Pair);
+
+  var p = e as Pair;
+  var n = findPairToExplode(p.left, level + 1);
+  if (n != null) return n;
+
+  return findPairToExplode(p.right, level + 1);
 }
 
 void explode(Pair p) {
@@ -128,17 +139,6 @@ Number? findNeighbourNumber(Pair p, Side s) {
 Number? mostOuterNumber(Pair p, LeftOrRight lor) {
   if (lor(p) is Number) return lor(p) as Number;
   return mostOuterNumber(lor(p) as Pair, lor);
-}
-
-Pair? findNested(Element e, [int level = 0]) {
-  if (e is Number) return null;
-  if (level == 4) return (e as Pair);
-
-  var p = e as Pair;
-  var n = findNested(p.left, level + 1);
-  if (n != null) return n;
-
-  return findNested(p.right, level + 1);
 }
 
 Pair parseLine(String input) => parse(input) as Pair;
