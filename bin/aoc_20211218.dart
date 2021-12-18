@@ -50,21 +50,7 @@ int magnitude(Pair p) {
 }
 
 void reduce(Pair root) {
-  while (true) {
-    var n = findPairToExplode(root);
-    if (n != null) {
-      explode(n);
-      continue;
-    }
-
-    var s = findNumberToSplit(root);
-    if (s != null) {
-      split(s);
-      continue;
-    }
-
-    break;
-  }
+  while (explodeIfPossible(root) || splitIfPossible(root)) {}
 }
 
 Number? findNumberToSplit(Element e) {
@@ -87,6 +73,13 @@ void split(Number nr) {
   replaceParent(nr, replacer);
 }
 
+bool splitIfPossible(Pair p) {
+  var toSplit = findNumberToSplit(p);
+  if (toSplit == null) return false;
+  split(toSplit);
+  return true;
+}
+
 Pair? findPairToExplode(Element e, [int level = 0]) {
   if (e is Number) return null;
   if (level == 4) return (e as Pair);
@@ -106,6 +99,13 @@ void explode(Pair p) {
   if (nrRight != null) nrRight.value += (p.right as Number).value;
 
   replaceParent(p, Number(0));
+}
+
+bool explodeIfPossible(Pair p) {
+  var toExplode = findPairToExplode(p);
+  if (toExplode == null) return false;
+  explode(toExplode);
+  return true;
 }
 
 void replaceParent(Element old, Element replacer) {
