@@ -169,9 +169,7 @@ int findComma(String input) {
   throw Exception('cannot find comma: $input');
 }
 
-bool isNumeric(String str) {
-  return RegExp(r'^-?[0-9]+$').hasMatch(str);
-}
+bool isNumeric(String str) => RegExp(r'^-?[0-9]+$').hasMatch(str);
 
 class Element {
   Pair? parent;
