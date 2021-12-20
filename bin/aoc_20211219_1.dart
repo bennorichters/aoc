@@ -10,21 +10,19 @@ void main() {
   void solve() {
     var visited = <int>{};
     var result = Set.of(scans[0]);
-    // var result = <CubeCoordinate>{};
-    // result.addAll(scans[0]);
 
     Transformation? findTransformation(
-      int scanNrA,
-      int scanNrB,
+      Set<CubeCoordinate> scanA,
+      Set<CubeCoordinate> scanB,
       CubeCoordinate beaconA,
       List<Transformation> steps,
     ) {
       for (var rotation in rotations) {
-        for (var beaconB in scans[scanNrB]) {
+        for (var beaconB in scanB) {
           var translation = beaconA - rotation.perform(beaconB);
           var tr = Transformation(translation, rotation);
-          if (areOverlapping(scans[scanNrA], scans[scanNrB], tr)) {
-            for (var beaconToAdd in scans[scanNrB]) {
+          if (areOverlapping(scanA, scanB, tr)) {
+            for (var beaconToAdd in scanB) {
               beaconToAdd = tr.perform(beaconToAdd);
               for (var step in steps.reversed) {
                 beaconToAdd = step.perform(beaconToAdd);
@@ -45,10 +43,11 @@ void main() {
 
       print(scanNrA);
 
+      var scanA = scans[scanNrA];
       for (var scanNrB = 0; scanNrB < scans.length; scanNrB++) {
         if (!visited.contains(scanNrB)) {
-          for (var beaconA in scans[scanNrA]) {
-            var tr = findTransformation(scanNrA, scanNrB, beaconA, steps);
+          for (var beaconA in scanA) {
+            var tr = findTransformation(scanA, scans[scanNrB], beaconA, steps);
             if (tr != null) {
               var recSteps = List.of(steps)..add(tr);
               compareScans(scanNrB, recSteps);
