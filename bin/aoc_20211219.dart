@@ -8,7 +8,7 @@ void main() {
   var lines = File('./in').readAsLinesSync();
 
   var scans = parseAllScanners(lines);
-  var rotations = allRotations();
+  var rotations = all24Rotations();
 
   void solve() {
     var visited = <int>{};
@@ -158,7 +158,7 @@ Set<CubeCoordinate> parseScanner(List<String> lines, int start) {
   return result;
 }
 
-Set<Rotation> allRotations() {
+Set<Rotation> all24Rotations() {
   const c = CubeCoordinate(1, 2, 3);
 
   var all = <CubeCoordinate, Set<List<AxisRotation>>>{};
