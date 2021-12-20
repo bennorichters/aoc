@@ -20,15 +20,15 @@ void main() {
       Transformation tr,
       List<Transformation> steps,
     ) {
-      for (var beaconToAdd in scanB) {
+      for (var beacon in scanB) {
         var scanner = tr.perform(referenceScanner);
-        beaconToAdd = tr.perform(beaconToAdd);
+        beacon = tr.perform(beacon);
         for (var step in steps.reversed) {
           scanner = step.perform(scanner);
-          beaconToAdd = step.perform(beaconToAdd);
+          beacon = step.perform(beacon);
         }
         scanners.add(scanner);
-        beacons.add(beaconToAdd);
+        beacons.add(beacon);
       }
     }
 
@@ -41,7 +41,6 @@ void main() {
       for (var rotation in rotations) {
         for (var beaconB in scanB) {
           var translation = beaconA - rotation.perform(beaconB);
-          if (translation.x > 1000 || translation.y > 1000 || translation.z > 1000) continue;
           var tr = Transformation(translation, rotation);
           if (areOverlapping(scanA, scanB, tr)) {
             addFoundResults(scanB, tr, steps);
