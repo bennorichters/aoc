@@ -220,27 +220,18 @@ class AxisRotation {
 
 enum Angle { theta0, theta90, theta180, theta270 }
 
-// X = x;
-// Y = y*cos(theta) - z*sin(theta);
-// Z = y*sin(theta) + z*cos(theta);
 CubeCoordinate rotateX(CubeCoordinate c, Angle theta) => CubeCoordinate(
       c.x,
       c.y * cos(theta) - c.z * sin(theta),
       c.y * sin(theta) + c.z * cos(theta),
     );
 
-// X = x*cos(theta) + z*sin(theta);
-// Y = y;
-// Z = z*cos(theta) - x*sin(theta);
 CubeCoordinate rotateY(CubeCoordinate c, Angle theta) => CubeCoordinate(
       c.x * cos(theta) + c.z * sin(theta),
       c.y,
       c.z * cos(theta) - c.x * sin(theta),
     );
 
-// X = x*cos(theta) - y*sin(theta);
-// Y = x*sin(theta) + y*cos(theta);
-// Z = z;
 CubeCoordinate rotateZ(CubeCoordinate c, Angle theta) => CubeCoordinate(
       c.x * cos(theta) - c.y * sin(theta),
       c.x * sin(theta) + c.y * cos(theta),
