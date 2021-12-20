@@ -4,8 +4,8 @@ import 'dart:math';
 const referenceScanner = CubeCoordinate(0, 0, 0);
 
 void main() {
-  var lines = File('./tin').readAsLinesSync();
-  // var lines = File('./in').readAsLinesSync();
+  // var lines = File('./tin').readAsLinesSync();
+  var lines = File('./in').readAsLinesSync();
 
   var scans = parseAllScanners(lines);
   var rotations = allRotations();
@@ -73,8 +73,10 @@ void main() {
 
       var scanA = scans[scan];
       for (var other = 0; other < scans.length; other++) {
-        var tr = findTransformation(scanA, scans[other], steps);
-        if (tr != null) overlapWithOtherScans(other, List.of(steps)..add(tr));
+        if (!visited.contains(other)) {
+          var tr = findTransformation(scanA, scans[other], steps);
+          if (tr != null) overlapWithOtherScans(other, List.of(steps)..add(tr));
+        }
       }
     }
 
