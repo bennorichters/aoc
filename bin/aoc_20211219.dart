@@ -4,8 +4,8 @@ import 'dart:math';
 const referenceScanner = CubeCoordinate(0, 0, 0);
 
 void main() {
-  // var lines = File('./tin').readAsLinesSync();
-  var lines = File('./in').readAsLinesSync();
+  var lines = File('./tin').readAsLinesSync();
+  // var lines = File('./in').readAsLinesSync();
 
   var scans = parseAllScanners(lines);
   var rotations = all24Rotations();
@@ -279,7 +279,7 @@ int sin(Angle theta) {
   }
 }
 
-class CubeCoordinate implements Comparable<CubeCoordinate> {
+class CubeCoordinate {
   final int x, y, z;
   const CubeCoordinate(this.x, this.y, this.z);
 
@@ -304,11 +304,4 @@ class CubeCoordinate implements Comparable<CubeCoordinate> {
 
   @override
   int get hashCode => x + 31 * y + 101 * z;
-
-  @override
-  int compareTo(CubeCoordinate other) {
-    if (x != other.x) return x - other.x;
-    if (y != other.y) return y - other.y;
-    return z - other.z;
-  }
 }
