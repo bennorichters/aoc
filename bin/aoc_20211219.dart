@@ -41,6 +41,7 @@ void main() {
       for (var rotation in rotations) {
         for (var beaconB in scanB) {
           var translation = beaconA - rotation.perform(beaconB);
+          if (translation.x > 1000 || translation.y > 1000 || translation.z > 1000) continue;
           var tr = Transformation(translation, rotation);
           if (areOverlapping(scanA, scanB, tr)) {
             addFoundResults(scanB, tr, steps);
