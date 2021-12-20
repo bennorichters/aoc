@@ -1,15 +1,17 @@
 import 'dart:io';
 
 void main() {
-  // var lines = File('./tin').readAsLinesSync();
-  var lines = File('./in').readAsLinesSync();
+  var lines = File('./tin').readAsLinesSync();
+  // var lines = File('./in').readAsLinesSync();
 
   var scans = parseAllScanners(lines);
   var rotations = allRotations();
 
   void solve() {
     var visited = <int>{};
-    var result = <CubeCoordinate>{};
+    var result = Set.of(scans[0]);
+    // var result = <CubeCoordinate>{};
+    // result.addAll(scans[0]);
 
     Transformation? findTransformation(
       int scanNrA,
@@ -20,23 +22,14 @@ void main() {
       for (var rotation in rotations) {
         for (var beaconB in scans[scanNrB]) {
           var translation = beaconA - rotation.perform(beaconB);
-
-          if (areOverlapping(
-            scans[scanNrA],
-            scans[scanNrB],
-            translation,
-            rotation,
-          )) {
-            var tr = Transformation(translation, rotation);
-
-            print('here: $scanNrA $scanNrB');
-            for (var toAdd in scans[scanNrB]) {
-              var r = toAdd;
-              r = tr.perform(r);
-              for (var t in steps.reversed) {
-                r = t.perform(r);
+          var tr = Transformation(translation, rotation);
+          if (areOverlapping(scans[scanNrA], scans[scanNrB], tr)) {
+            for (var beaconToAdd in scans[scanNrB]) {
+              beaconToAdd = tr.perform(beaconToAdd);
+              for (var step in steps.reversed) {
+                beaconToAdd = step.perform(beaconToAdd);
               }
-              result.add(r);
+              result.add(beaconToAdd);
             }
 
             return tr;
@@ -47,21 +40,20 @@ void main() {
       return null;
     }
 
-    void compareScans(
-      int scanNrA,
-      List<Transformation> steps,
-    ) {
+    void compareScans(int scanNrA, List<Transformation> steps) {
       if (!visited.add(scanNrA)) return;
 
       print(scanNrA);
 
       for (var scanNrB = 0; scanNrB < scans.length; scanNrB++) {
-        for (var beaconA in scans[scanNrA]) {
-          var tr = findTransformation(scanNrA, scanNrB, beaconA, steps);
-          if (tr != null) {
-            var recSteps = List.of(steps)..add(tr);
-            compareScans(scanNrB, recSteps);
-            break;
+        if (!visited.contains(scanNrB)) {
+          for (var beaconA in scans[scanNrA]) {
+            var tr = findTransformation(scanNrA, scanNrB, beaconA, steps);
+            if (tr != null) {
+              var recSteps = List.of(steps)..add(tr);
+              compareScans(scanNrB, recSteps);
+              break;
+            }
           }
         }
       }
@@ -88,13 +80,12 @@ class Transformation {
 bool areOverlapping(
   Set<CubeCoordinate> scanA,
   Set<CubeCoordinate> scanB,
-  CubeCoordinate translation,
-  Rotation rotation,
+  Transformation transformation,
 ) {
   var count = 0;
   for (var sa in scanA) {
     for (var sb in scanB) {
-      if (rotation.perform(sb) + translation == sa) {
+      if (transformation.perform(sb) == sa) {
         count++;
         if (count == 12) return true;
       }
