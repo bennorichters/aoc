@@ -15,7 +15,24 @@ void main() {
     var beacons = Set.of(scans[0]);
     var scanners = Set.of({referenceScanner});
 
-    Transformation? findTransformation(
+    void addFoundResults(
+      Set<CubeCoordinate> scanB,
+      Transformation tr,
+      List<Transformation> steps,
+    ) {
+      for (var beaconToAdd in scanB) {
+        var scanner = tr.perform(referenceScanner);
+        beaconToAdd = tr.perform(beaconToAdd);
+        for (var step in steps.reversed) {
+          scanner = step.perform(scanner);
+          beaconToAdd = step.perform(beaconToAdd);
+        }
+        scanners.add(scanner);
+        beacons.add(beaconToAdd);
+      }
+    }
+
+    Transformation? tryAllRotations(
       Set<CubeCoordinate> scanA,
       Set<CubeCoordinate> scanB,
       CubeCoordinate beaconA,
@@ -26,16 +43,7 @@ void main() {
           var translation = beaconA - rotation.perform(beaconB);
           var tr = Transformation(translation, rotation);
           if (areOverlapping(scanA, scanB, tr)) {
-            for (var beaconToAdd in scanB) {
-              var scanner = tr.perform(referenceScanner);
-              beaconToAdd = tr.perform(beaconToAdd);
-              for (var step in steps.reversed) {
-                scanner = step.perform(scanner);
-                beaconToAdd = step.perform(beaconToAdd);
-              }
-              scanners.add(scanner);
-              beacons.add(beaconToAdd);
-            }
+            addFoundResults(scanB, tr, steps);
 
             return tr;
           }
@@ -45,27 +53,32 @@ void main() {
       return null;
     }
 
-    void compareScans(int scanNrA, List<Transformation> steps) {
-      if (!visited.add(scanNrA)) return;
+    Transformation? findTransformation(
+      Set<CubeCoordinate> scanA,
+      Set<CubeCoordinate> scanB,
+      List<Transformation> steps,
+    ) {
+      for (var beaconA in scanA) {
+        var tr = tryAllRotations(scanA, scanB, beaconA, steps);
+        if (tr != null) return tr;
+      }
 
-      print(scanNrA);
+      return null;
+    }
 
-      var scanA = scans[scanNrA];
-      for (var scanNrB = 0; scanNrB < scans.length; scanNrB++) {
-        if (!visited.contains(scanNrB)) {
-          for (var beaconA in scanA) {
-            var tr = findTransformation(scanA, scans[scanNrB], beaconA, steps);
-            if (tr != null) {
-              var recSteps = List.of(steps)..add(tr);
-              compareScans(scanNrB, recSteps);
-              break;
-            }
-          }
-        }
+    void overlapWithOtherScans(int scan, List<Transformation> steps) {
+      if (!visited.add(scan)) return;
+
+      print(scan);
+
+      var scanA = scans[scan];
+      for (var other = 0; other < scans.length; other++) {
+        var tr = findTransformation(scanA, scans[other], steps);
+        if (tr != null) overlapWithOtherScans(other, List.of(steps)..add(tr));
       }
     }
 
-    compareScans(0, []);
+    overlapWithOtherScans(0, []);
 
     print('nr of beacons: ${beacons.length}');
     print('max ditance between scanners: ${maxDistance(scanners.toList())}');
