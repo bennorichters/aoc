@@ -27,7 +27,7 @@ const dieDist = {
 
 void main() {
   var universes = {
-    GameState(
+    const GameState(
       PlayerState(p1Start, 0),
       PlayerState(p2Start, 0),
       true,
