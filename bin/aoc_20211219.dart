@@ -4,8 +4,8 @@ import 'dart:math';
 const referenceScanner = CubeCoordinate(0, 0, 0);
 
 void main() {
-  var lines = File('./tin').readAsLinesSync();
-  // var lines = File('./in').readAsLinesSync();
+  // var lines = File('./tin').readAsLinesSync();
+  var lines = File('./in').readAsLinesSync();
 
   var scans = parseAllScanners(lines);
   var rotations = all24Rotations();
@@ -122,10 +122,7 @@ bool areOverlapping(
   var count = 0;
   for (var sa in scanA) {
     for (var sb in scanB) {
-      if (transformation.perform(sb) == sa) {
-        count++;
-        if (count == 12) return true;
-      }
+      if ((transformation.perform(sb) == sa) && (++count == 12)) return true;
     }
   }
 
