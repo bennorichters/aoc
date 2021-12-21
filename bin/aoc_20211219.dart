@@ -15,20 +15,26 @@ void main() {
     var beacons = Set.of(scans[0]);
     var scanners = Set.of({referenceScanner});
 
-    void addFoundResults(
-      Set<CubeCoordinate> scanB,
+    CubeCoordinate absolutePosition(
+      CubeCoordinate relative,
       Transformation tr,
       List<Transformation> steps,
     ) {
-      for (var beacon in scanB) {
-        var scanner = tr.perform(referenceScanner);
-        beacon = tr.perform(beacon);
-        for (var step in steps.reversed) {
-          scanner = step.perform(scanner);
-          beacon = step.perform(beacon);
-        }
-        scanners.add(scanner);
-        beacons.add(beacon);
+      var result = tr.perform(relative);
+      for (var step in steps.reversed) {
+        result = step.perform(result);
+      }
+      return result;
+    }
+
+    void addFoundResults(
+      Set<CubeCoordinate> scan,
+      Transformation tr,
+      List<Transformation> steps,
+    ) {
+      scanners.add(absolutePosition(referenceScanner, tr, steps));
+      for (var beacon in scan) {
+        beacons.add(absolutePosition(beacon, tr, steps));
       }
     }
 
@@ -44,7 +50,6 @@ void main() {
           var tr = Transformation(translation, rotation);
           if (areOverlapping(scanA, scanB, tr)) {
             addFoundResults(scanB, tr, steps);
-
             return tr;
           }
         }
