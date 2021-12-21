@@ -4,8 +4,8 @@ import 'dart:math';
 const referenceScanner = CubeCoordinate(0, 0, 0);
 
 void main() {
-  // var lines = File('./tin').readAsLinesSync();
-  var lines = File('./in').readAsLinesSync();
+  var lines = File('./tin').readAsLinesSync();
+  // var lines = File('./in').readAsLinesSync();
 
   var scans = parseAllScanners(lines);
   var rotations = all24Rotations();
@@ -25,10 +25,7 @@ void main() {
       return relative;
     }
 
-    void addFoundResults(
-      Set<CubeCoordinate> scan,
-      List<Transformation> steps
-    ) {
+    void addFoundResults(Set<CubeCoordinate> scan, List<Transformation> steps) {
       scanners.add(absolutePosition(referenceScanner, steps));
       for (var beacon in scan) {
         beacons.add(absolutePosition(beacon, steps));
@@ -68,15 +65,15 @@ void main() {
       return null;
     }
 
-    void overlapWithOtherScans(int scan, List<Transformation> steps) {
-      if (!visited.add(scan)) return;
+    void overlapWithOtherScans(int scanNr, List<Transformation> steps) {
+      if (!visited.add(scanNr)) return;
 
-      print(scan);
+      print(scanNr);
 
-      var scanA = scans[scan];
+      var scan = scans[scanNr];
       for (var other = 0; other < scans.length; other++) {
         if (!visited.contains(other)) {
-          var tr = findTransformation(scanA, scans[other], steps);
+          var tr = findTransformation(scan, scans[other], steps);
           if (tr != null) overlapWithOtherScans(other, List.of(steps)..add(tr));
         }
       }
