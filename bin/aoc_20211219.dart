@@ -4,8 +4,8 @@ import 'dart:math';
 const referenceScanner = CubeCoordinate(0, 0, 0);
 
 void main() {
-  var lines = File('./tin').readAsLinesSync();
-  // var lines = File('./in').readAsLinesSync();
+  // var lines = File('./tin').readAsLinesSync();
+  var lines = File('./in').readAsLinesSync();
 
   var scans = parseAllScanners(lines);
   var rotations = all24Rotations();
@@ -17,24 +17,21 @@ void main() {
 
     CubeCoordinate absolutePosition(
       CubeCoordinate relative,
-      Transformation tr,
       List<Transformation> steps,
     ) {
-      var result = tr.perform(relative);
       for (var step in steps.reversed) {
-        result = step.perform(result);
+        relative = step.perform(relative);
       }
-      return result;
+      return relative;
     }
 
     void addFoundResults(
       Set<CubeCoordinate> scan,
-      Transformation tr,
       List<Transformation> steps,
     ) {
-      scanners.add(absolutePosition(referenceScanner, tr, steps));
+      scanners.add(absolutePosition(referenceScanner, steps));
       for (var beacon in scan) {
-        beacons.add(absolutePosition(beacon, tr, steps));
+        beacons.add(absolutePosition(beacon, steps));
       }
     }
 
@@ -49,7 +46,7 @@ void main() {
           var translation = beaconA - rotation.perform(beaconB);
           var tr = Transformation(translation, rotation);
           if (areOverlapping(scanA, scanB, tr)) {
-            addFoundResults(scanB, tr, steps);
+            addFoundResults(scanB, List.of(steps)..add(tr));
             return tr;
           }
         }
