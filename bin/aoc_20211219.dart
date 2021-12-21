@@ -27,7 +27,7 @@ void main() {
 
     void addFoundResults(
       Set<CubeCoordinate> scan,
-      List<Transformation> steps,
+      List<Transformation> steps
     ) {
       scanners.add(absolutePosition(referenceScanner, steps));
       for (var beacon in scan) {
@@ -85,7 +85,7 @@ void main() {
     overlapWithOtherScans(0, []);
 
     print('nr of beacons: ${beacons.length}');
-    print('max ditance between scanners: ${maxDistance(scanners.toList())}');
+    print('max distance between scanners: ${maxDistance(scanners.toList())}');
   }
 
   solve();
