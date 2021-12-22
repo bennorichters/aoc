@@ -63,9 +63,7 @@ Set<Cuboid> subtract(Cuboid target, Cuboid toCutAway) {
   var overlap = overlapping(target, toCutAway);
   if (overlap == null) return {target};
 
-  var result = cutAroundOverlap(target, overlap);
-
-  return result;
+  return cutAroundOverlap(target, overlap);
 }
 
 Set<Cuboid> cutAroundOverlap(Cuboid cuboid, Cuboid overlap) {
