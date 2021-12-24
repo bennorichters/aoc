@@ -115,20 +115,22 @@ void solve() {
       continue;
     }
 
-    visited[state] = stackElement.energyUsed;
-
     if (state.finished) {
       result = result == -1
           ? stackElement.energyUsed
           : min(result, stackElement.energyUsed);
 
-          print('---Yeah!----');
-          state.printMap();
-          print(result);
-          print('---Yeah!----');
+      print('---Yeah!----');
+      state.printMap();
+      print(result);
+      print('---Yeah!----');
+
+      visited.removeWhere((key, value) => value >= result);
 
       continue;
     }
+
+    visited[state] = stackElement.energyUsed;
 
     count++;
     if (count % 10000 == 0) {
@@ -266,12 +268,12 @@ Burrow? neighbourCheck(GameState state, Amphipod amp) {
   var options = burrowsPerType[amp.type]!;
 
   var burrows = state.burrows;
-  for (var d = maxDepth; d >=0; d--) {
+  for (var d = maxDepth; d >= 0; d--) {
     var candidate = options[d];
     if (!burrows.containsKey(candidate)) return candidate;
     if (burrows[candidate]!.type != amp.type) return null;
   }
-  
+
   return null;
 }
 
