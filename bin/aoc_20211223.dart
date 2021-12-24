@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:collection/collection.dart';
 
-// // Puzzle puzzel input #1
+// // Test puzzel input #1
 // final allAmphipods = {
 //   Amphipod(AmphipodType.b, burrow: const Burrow(2, 0)),
 //   Amphipod(AmphipodType.a, burrow: const Burrow(2, 1)),
@@ -13,7 +13,7 @@ import 'package:collection/collection.dart';
 //   Amphipod(AmphipodType.a, burrow: const Burrow(8, 1)),
 // };
 
-// // Puzzle puzzel input #2
+// // Test puzzel input #2
 // final allAmphipods = {
 //   Amphipod(AmphipodType.b, burrow: const Burrow(2, 0)),
 //   Amphipod(AmphipodType.d, burrow: const Burrow(2, 1)),
@@ -75,9 +75,7 @@ final initialOccupants = (() {
   return result;
 })();
 
-final allBurrows = initialOccupants.keys;
-
-final maxDepth = allBurrows.fold(0, (int a, b) => max(a, b.deep));
+final maxDepth = initialOccupants.keys.fold(0, (int a, b) => max(a, b.deep));
 
 var burrowsPerType = <AmphipodType, List<Burrow>>{
   AmphipodType.a: List.generate(maxDepth + 1, (index) => Burrow(2, index)),
@@ -154,7 +152,7 @@ class StackElement implements Comparable<StackElement> {
 
   @override
   int compareTo(StackElement other) {
-    var a = state.compareTo(other.state);
+    var a = other.state.finishCount - state.finishCount;
     if (a != 0) return a;
 
     return energyUsed - other.energyUsed;
@@ -179,7 +177,6 @@ Set<StackElement> possibleMoves(GameState state, Amphipod amp, int energy) {
       result.add(StackElement(rgs, energy + amp.energyCost * distance));
     }
   } else {
-    if (!canMoveOut(state, amp.burrow!)) return {};
     var hs = accessibleHallway(state, amp);
     for (int h in hs) {
       var rgs = state.moveToHallway(amp, h);
@@ -199,6 +196,8 @@ bool canMoveOut(GameState state, Burrow burrow) {
 }
 
 Set<int> accessibleHallway(GameState state, Amphipod amp) {
+  if (!canMoveOut(state, amp.burrow!)) return {};
+
   const forbidden = {2, 4, 6, 8};
   var result = <int>{};
 
@@ -244,24 +243,10 @@ bool isBlocking(List<Amphipod?> ams, AmphipodType type, int candidate) {
 bool isInBetween(int toTest, int bound1, int bound2) =>
     min(bound1, bound2) < toTest && max(bound1, bound2) > toTest;
 
-var bCount = 0;
 Burrow? accessibleBurrows(GameState state, Amphipod amp) {
   Burrow? candidate = neighbourCheck(state, amp);
   if (candidate == null) return null;
-  // return freePath(state, candidate, amp) ? candidate : null;
-  if (freePath(state, candidate, amp)) {
-    // bCount++;
-    // if (bCount == 2000) {
-    //   print('---HERE--');
-    //   state.printMap();
-    //   print(amp);
-    //   print(candidate);
-    //   throw Exception();
-    // }
-    return candidate;
-  }
-
-  return null;
+  return freePath(state, candidate, amp) ? candidate : null;
 }
 
 Burrow? neighbourCheck(GameState state, Amphipod amp) {
@@ -287,7 +272,7 @@ bool freePath(GameState state, Burrow burrow, Amphipod amp) {
   return true;
 }
 
-class GameState implements Comparable<GameState> {
+class GameState {
   Set<Amphipod> amps;
   List<Amphipod?> hallway;
   Map<Burrow, Amphipod> burrows;
@@ -396,9 +381,6 @@ class GameState implements Comparable<GameState> {
 
     return '.';
   }
-
-  @override
-  int compareTo(GameState other) => other.finishCount - finishCount;
 }
 
 enum AmphipodType { a, b, c, d }
