@@ -1,17 +1,17 @@
 import 'dart:math';
 import 'package:collection/collection.dart';
 
-// // Test puzzel input #1
-// final allAmphipods = {
-//   Amphipod(AmphipodType.b, burrow: const Burrow(2, 0)),
-//   Amphipod(AmphipodType.a, burrow: const Burrow(2, 1)),
-//   Amphipod(AmphipodType.c, burrow: const Burrow(4, 0)),
-//   Amphipod(AmphipodType.d, burrow: const Burrow(4, 1)),
-//   Amphipod(AmphipodType.b, burrow: const Burrow(6, 0)),
-//   Amphipod(AmphipodType.c, burrow: const Burrow(6, 1)),
-//   Amphipod(AmphipodType.d, burrow: const Burrow(8, 0)),
-//   Amphipod(AmphipodType.a, burrow: const Burrow(8, 1)),
-// };
+// Test puzzel input #1
+final allAmphipods = {
+  Amphipod(AmphipodType.b, burrow: const Burrow(2, 0)),
+  Amphipod(AmphipodType.a, burrow: const Burrow(2, 1)),
+  Amphipod(AmphipodType.c, burrow: const Burrow(4, 0)),
+  Amphipod(AmphipodType.d, burrow: const Burrow(4, 1)),
+  Amphipod(AmphipodType.b, burrow: const Burrow(6, 0)),
+  Amphipod(AmphipodType.c, burrow: const Burrow(6, 1)),
+  Amphipod(AmphipodType.d, burrow: const Burrow(8, 0)),
+  Amphipod(AmphipodType.a, burrow: const Burrow(8, 1)),
+};
 
 // // Test puzzel input #2
 // final allAmphipods = {
@@ -45,25 +45,25 @@ import 'package:collection/collection.dart';
 //   Amphipod(AmphipodType.c, burrow: const Burrow(8, 1)),
 // };
 
-// Real puzzel input #2
-final allAmphipods = {
-  Amphipod(AmphipodType.c, burrow: const Burrow(2, 0)),
-  Amphipod(AmphipodType.d, burrow: const Burrow(2, 1)),
-  Amphipod(AmphipodType.d, burrow: const Burrow(2, 2)),
-  Amphipod(AmphipodType.b, burrow: const Burrow(2, 3)),
-  Amphipod(AmphipodType.a, burrow: const Burrow(4, 0)),
-  Amphipod(AmphipodType.c, burrow: const Burrow(4, 1)),
-  Amphipod(AmphipodType.b, burrow: const Burrow(4, 2)),
-  Amphipod(AmphipodType.a, burrow: const Burrow(4, 3)),
-  Amphipod(AmphipodType.b, burrow: const Burrow(6, 0)),
-  Amphipod(AmphipodType.b, burrow: const Burrow(6, 1)),
-  Amphipod(AmphipodType.a, burrow: const Burrow(6, 2)),
-  Amphipod(AmphipodType.d, burrow: const Burrow(6, 3)),
-  Amphipod(AmphipodType.d, burrow: const Burrow(8, 0)),
-  Amphipod(AmphipodType.a, burrow: const Burrow(8, 1)),
-  Amphipod(AmphipodType.c, burrow: const Burrow(8, 2)),
-  Amphipod(AmphipodType.c, burrow: const Burrow(8, 3)),
-};
+// // Real puzzel input #2
+// final allAmphipods = {
+//   Amphipod(AmphipodType.c, burrow: const Burrow(2, 0)),
+//   Amphipod(AmphipodType.d, burrow: const Burrow(2, 1)),
+//   Amphipod(AmphipodType.d, burrow: const Burrow(2, 2)),
+//   Amphipod(AmphipodType.b, burrow: const Burrow(2, 3)),
+//   Amphipod(AmphipodType.a, burrow: const Burrow(4, 0)),
+//   Amphipod(AmphipodType.c, burrow: const Burrow(4, 1)),
+//   Amphipod(AmphipodType.b, burrow: const Burrow(4, 2)),
+//   Amphipod(AmphipodType.a, burrow: const Burrow(4, 3)),
+//   Amphipod(AmphipodType.b, burrow: const Burrow(6, 0)),
+//   Amphipod(AmphipodType.b, burrow: const Burrow(6, 1)),
+//   Amphipod(AmphipodType.a, burrow: const Burrow(6, 2)),
+//   Amphipod(AmphipodType.d, burrow: const Burrow(6, 3)),
+//   Amphipod(AmphipodType.d, burrow: const Burrow(8, 0)),
+//   Amphipod(AmphipodType.a, burrow: const Burrow(8, 1)),
+//   Amphipod(AmphipodType.c, burrow: const Burrow(8, 2)),
+//   Amphipod(AmphipodType.c, burrow: const Burrow(8, 3)),
+// };
 
 final initialOccupants = (() {
   var result = <Burrow, Amphipod>{};
@@ -300,7 +300,8 @@ class GameState {
       var under = burrows[bnb]!;
       if (!under.finished) {
         var rnb = under.finish();
-        assert(rAmps.remove(under));
+        bool removed = rAmps.remove(under);
+        assert(removed);
         rAmps.add(rnb);
         rBurrows[bnb] = rnb;
       }
