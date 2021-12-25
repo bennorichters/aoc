@@ -40,7 +40,6 @@ void main() {
   }
 
   bool move() {
-    var rFloor = <Point, Tile>{};
     var rEasters = <Point>{};
     var rSouthers = <Point>{};
 
@@ -53,7 +52,6 @@ void main() {
         );
         if (!easters.contains(destination) && !southers.contains(destination)) {
           toRemove.add(cucumber);
-          rFloor[destination] = Tile.east;
           rEasters.add(destination);
         }
       }
@@ -73,7 +71,6 @@ void main() {
             !southers.contains(destination) &&
             !rEasters.contains(destination)) {
           toRemove.add(cucumber);
-          rFloor[destination] = Tile.south;
           rSouthers.add(destination);
         }
       }
@@ -99,7 +96,7 @@ void main() {
     count++;
   }
   print(count);
-  printFloor();
+  // printFloor();
 }
 
 enum Tile { east, south }
