@@ -6,19 +6,34 @@ void main(List<String> arguments) {
   var lines = File('./tin').readAsLinesSync();
   // var lines = File('./in').readAsLinesSync();
 
-  var t = parseTile(lines, 0);
-  print(t);
-  var a= t.rotate().rotate().flipVertically();
-  var b = t.flipHorizontally();
-  print(a==b);
-  print(t==a);
-  print(t==b);
+  var ts = parse(lines);
+  print(ts.length);
+
+  var t1427 = ts.firstWhere((element) => element.id == 1427);
+  var t2311  = ts.firstWhere((element) => element.id == 2311);
+  var t3079   = ts.firstWhere((element) => element.id == 3079);
+  // var t = parseTile(lines, 0);
+  // print(t);
+  // var a = t.rotate().rotate().flipVertically();
+  // var b = t.flipHorizontally();
+  // print(a == b);
+  // print(t == a);
+  // print(t == b);
+}
+
+void bn(Tile t1, Tile t2) {
+ // .. 
 }
 
 String reverseString(String str) => str.split('').reversed.join();
 
 List<Tile> parse(List<String> lines) {
-  return [];
+  var result = <Tile>[];
+  for (int i = 0; i < lines.length; i += 12) {
+    result.add(parseTile(lines, i));
+  }
+
+  return result;
 }
 
 Tile parseTile(List<String> lines, int index) {
