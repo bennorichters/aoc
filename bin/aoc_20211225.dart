@@ -44,24 +44,24 @@ void main() {
     var rSouthers = <Point>{};
 
     bool moveEast() {
-      var toRemove = <Point>{};
+      var movers = <Point>{};
       for (var cucumber in easters) {
         var destination = Point(
           cucumber.x == maxX ? 0 : cucumber.x + 1,
           cucumber.y,
         );
         if (!easters.contains(destination) && !southers.contains(destination)) {
-          toRemove.add(cucumber);
+          movers.add(cucumber);
           rEasters.add(destination);
         }
       }
-      easters.removeAll(toRemove);
+      easters.removeAll(movers);
 
-      return toRemove.isNotEmpty;
+      return movers.isNotEmpty;
     }
 
     bool moveSouth() {
-      var toRemove = <Point>{};
+      var movers = <Point>{};
       for (var cucumber in southers) {
         var destination = Point(
           cucumber.x,
@@ -70,13 +70,13 @@ void main() {
         if (!easters.contains(destination) &&
             !southers.contains(destination) &&
             !rEasters.contains(destination)) {
-          toRemove.add(cucumber);
+          movers.add(cucumber);
           rSouthers.add(destination);
         }
       }
-      southers.removeAll(toRemove);
+      southers.removeAll(movers);
 
-      return toRemove.isNotEmpty;
+      return movers.isNotEmpty;
     }
 
     var east = moveEast();
@@ -99,4 +99,3 @@ void main() {
   // printFloor();
 }
 
-enum Tile { east, south }
