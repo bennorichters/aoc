@@ -7,7 +7,6 @@ void main() {
 
   var maxY = lines.length - 1;
   var maxX = lines[0].length - 1;
-  var floor = <Point, Tile>{};
   var easters = <Point>{};
   var southers = <Point>{};
   for (var y = 0; y <= maxY; y++) {
@@ -15,10 +14,8 @@ void main() {
       var char = lines[y].substring(x, x + 1);
       var point = Point(x, y);
       if (char == '>') {
-        floor[point] = Tile.east;
         easters.add(point);
       } else if (char == 'v') {
-        floor[point] = Tile.south;
         southers.add(point);
       }
     }
@@ -29,9 +26,13 @@ void main() {
       String line = '';
       for (var x = 0; x <= maxX; x++) {
         var point = Point(x, y);
-        line += floor.containsKey(point)
-            ? (floor[point] == Tile.east ? '>' : 'v')
-            : '.';
+        if (easters.contains(point)) {
+          line += '>';
+        } else if (southers.contains(point)) {
+          line += 'v';
+        } else {
+          line += '.';
+        }
       }
 
       print(line);
@@ -50,14 +51,11 @@ void main() {
           cucumber.x == maxX ? 0 : cucumber.x + 1,
           cucumber.y,
         );
-        if (!floor.containsKey(destination)) {
+        if (!easters.contains(destination) && !southers.contains(destination)) {
           toRemove.add(cucumber);
           rFloor[destination] = Tile.east;
           rEasters.add(destination);
         }
-      }
-      for (var rem in toRemove) {
-        floor.remove(rem);
       }
       easters.removeAll(toRemove);
 
@@ -71,15 +69,13 @@ void main() {
           cucumber.x,
           cucumber.y == maxY ? 0 : cucumber.y + 1,
         );
-        if (!rFloor.containsKey(destination) &&
-            !floor.containsKey(destination)) {
+        if (!easters.contains(destination) &&
+            !southers.contains(destination) &&
+            !rEasters.contains(destination)) {
           toRemove.add(cucumber);
           rFloor[destination] = Tile.south;
           rSouthers.add(destination);
         }
-      }
-      for (var rem in toRemove) {
-        floor.remove(rem);
       }
       southers.removeAll(toRemove);
 
@@ -89,11 +85,9 @@ void main() {
     var east = moveEast();
     var south = moveSouth();
 
-    rFloor.addAll(floor);
     rEasters.addAll(easters);
     rSouthers.addAll(southers);
 
-    floor = rFloor;
     easters = rEasters;
     southers = rSouthers;
 
@@ -105,16 +99,7 @@ void main() {
     count++;
   }
   print(count);
-  // printFloor();
-  // for (int step = 1; step <= 20; step++) {
-  //   print('$step ##################');
-  //   move();
-  //   printFloor();
-  //   print('');
-  // }
+  printFloor();
 }
-
-typedef Cucumbers = Set<Point>;
-typedef FloorMap = Map<Point, Tile>;
 
 enum Tile { east, south }
