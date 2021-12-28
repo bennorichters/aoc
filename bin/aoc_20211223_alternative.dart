@@ -72,14 +72,14 @@ class GameState {
     int d3,
     int d4,
   ) {
-    return (_binomialCoefficientDist(a1, a2, a3, a4) << 42) +
-        (_binomialCoefficientDist(b1, b2, b3, b4) << 28) +
-        (_binomialCoefficientDist(c1, c2, c3, c4) << 14) +
-        _binomialCoefficientDist(d1, d2, d3, d4);
+    return (_enumeratedDistribution(a1, a2, a3, a4) << 42) +
+        (_enumeratedDistribution(b1, b2, b3, b4) << 28) +
+        (_enumeratedDistribution(c1, c2, c3, c4) << 14) +
+        _enumeratedDistribution(d1, d2, d3, d4);
   }
 
   // max value is 8854, which fits in a 14 bits binary number
-  static int _binomialCoefficientDist(int p1, int p2, int p3, int p4) =>
+  static int _enumeratedDistribution(int p1, int p2, int p3, int p4) =>
       _nChoose4[p1] + _nChoose3[p2] + _nChoose2[p3] + p4;
 
   // https://en.wikipedia.org/wiki/Hash_function#Identity_hash_function
