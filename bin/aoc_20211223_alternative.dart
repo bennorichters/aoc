@@ -13,7 +13,9 @@ class GameState {
   // b1 > b2 ...
   // c1 > c2 ...
   // d1 > d2 ...
-  // All numbers are unique
+  // all numbers are smaller than or equal to 22 
+  // all numbers are greater than or equal to 0
+  // all numbers are unique
   final int a1, a2, a3, a4, b1, b2, b3, b4, c1, c2, c3, c4, d1, d2, d3, d4;
   final int _hash;
   GameState(
@@ -76,15 +78,18 @@ class GameState {
         _binomialCoefficientDist(d1, d2, d3, d4);
   }
 
+  // max value is 8854, which fits in a 14 bits binary number
   static int _binomialCoefficientDist(int p1, int p2, int p3, int p4) =>
       _nChoose4[p1] + _nChoose3[p2] + _nChoose2[p3] + p4;
 
+  // https://en.wikipedia.org/wiki/Hash_function#Identity_hash_function
   @override
   int get hashCode => _hash;
 
   @override
   bool operator ==(other) => other is GameState && other._hash == _hash;
 
+  // for example: _nChoose2[10] has the value: 10 choose 2 (=45)  
   static const _nChoose2 = [
     0,
     0,
