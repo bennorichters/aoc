@@ -1,11 +1,15 @@
 void main() {
+  var gs1 = GameState(20, 17, 16, 3, 21, 18, 5, 1, 19, 15, 14, 10, 13, 11, 7, 6);
+  var gs2 = GameState(20, 17, 16, 3, 21, 18, 5, 3, 19, 15, 14, 10, 13, 11, 7, 6);
+  print(gs1.hashCode);
+  print(gs2.hashCode);
 }
 
 int choose(int n, int k) => (k == 0) ? 1 : (n * choose(n - 1, k - 1)) ~/ k;
 
 class GameState {
   final int a1, a2, a3, a4, b1, b2, b3, b4, c1, c2, c3, c4, d1, d2, d3, d4;
-  final int hash;
+  final int _hash;
   GameState(
     this.a1,
     this.a2,
@@ -23,7 +27,7 @@ class GameState {
     this.d2,
     this.d3,
     this.d4,
-  ) : hash = _calcHash(
+  ) : _hash = _calcHash(
           a1,
           a2,
           a3,
@@ -69,7 +73,13 @@ class GameState {
   static int _binomialCoefficientDist(int p1, int p2, int p3, int p4) =>
       _nChoose4[p1] + _nChoose3[p2] + _nChoose2[p3] + p4;
 
-  static const  _nChoose2 = [
+  @override
+  int get hashCode => _hash;
+
+  @override
+  bool operator ==(other) => other is GameState && other._hash == _hash;
+
+  static const _nChoose2 = [
     0,
     0,
     1,
@@ -150,4 +160,3 @@ class GameState {
     8855
   ];
 }
-
