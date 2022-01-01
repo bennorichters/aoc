@@ -1,12 +1,11 @@
 void main() {
   var s1 = GameState(
-      [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4]);
-  var s2 = GameState(
-      [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4]);
+    cave: [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4],
+    canLeaveRoom: [7, 11, 15, 19],
+    freeRoom: [-1, -1, -1, -1],
+  );
 
   printCave(s1);
-  print('');
-  printCave(s2);
 }
 
 void printCave(GameState gs) {
@@ -29,10 +28,23 @@ void printCave(GameState gs) {
   }
 }
 
+class Route {
+  final List<int> positions;
+  final int length;
+  const Route(this.positions, this.length);
+}
+
 class GameState {
   final List<int> cave;
+  final List<int> canLeaveRoom;
+  final List<int> freeRoom;
   final int _hash;
-  GameState(this.cave) : _hash = _calcHash(cave);
+
+  GameState({
+    required this.cave,
+    required this.canLeaveRoom,
+    required this.freeRoom,
+  }) : _hash = _calcHash(cave);
 
   static int _calcHash(cave) {
     assert(cave.length == 23);
@@ -149,3 +161,47 @@ class GameState {
     8855
   ];
 }
+
+const hallwayToRoom = [
+  [
+    // A
+    Route([1], 2),
+    Route([], 1),
+    Route([], 1),
+    Route([2], 3),
+    Route([3, 2], 5),
+    Route([4, 3, 2], 7),
+    Route([5, 4, 3, 2], 8),
+  ],
+  [
+    // B
+    Route([1, 2], 4),
+    Route([2], 3),
+    Route([], 1),
+    Route([], 1),
+    Route([3], 3),
+    Route([4, 3], 5),
+    Route([5, 4, 3], 6),
+  ],
+  [
+    // C
+    Route([1, 2, 3], 6),
+    Route([2, 3], 5),
+    Route([3], 3),
+    Route([], 1),
+    Route([], 1),
+    Route([4], 3),
+    Route([5, 4], 4),
+  ],
+  [
+    // D
+    Route([1, 2, 3, 4], 8),
+    Route([2, 3, 4], 7),
+    Route([3, 4], 5),
+    Route([4], 3),
+    Route([], 1),
+    Route([], 1),
+    Route([5], 2),
+  ],
+];
+
