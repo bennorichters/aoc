@@ -1,11 +1,84 @@
 void main() {
-  var s1 = GameState(
-    cave: [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4],
-    canLeaveRoom: [7, 11, 15, 19],
-    freeRoom: [-1, -1, -1, -1],
+  // var s1 = GameState(
+  //   cave: [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4],
+  //   canLeaveRoom: [7, 11, 15, 19],
+  //   freeRoom: [-1, -1, -1, -1],
+  // );
+
+  // printCave(s1);
+
+  var s2 = GameState(
+    cave: [0, 0, 0, 0, 0, 4, 1, 0, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 0, 4, 4, 4],
+    canLeaveRoom: [-1, 11, 15, -1],
+    freeRoom: [0, -1, -1, 0],
   );
 
-  printCave(s1);
+  var nodes = fromHallWay(s2);
+  print(nodes.first.costs);
+
+  var n2 = fromHallWay(nodes.first.state);
+  print(n2.first.state.cave);
+}
+
+Set<GameState> moves(GameState gs) {
+  var result = <GameState>{};
+
+  // result.addAll(fromRoom(gs));
+  // result.addAll(fromHallWay(gs));
+
+  return result;
+}
+
+Set<Node> fromHallWay(GameState gs) {
+  var result = <Node>{};
+
+  for (int i = 0; i <= 6; i++) {
+    var amp = gs.cave[i] - 1;
+    if (amp >= 0) {
+      var route = hallwayToRoom[amp][i];
+      if (gs.freeRoom[amp] > -1 && isRouteFree(gs, route)) {
+        var costs = (route.length + gs.freeRoom[amp] + 1) * moveCosts[amp];
+
+        var cave = [...gs.cave];
+        cave[i] = 0;
+        cave[roomEntrances[amp] + gs.freeRoom[amp]] = amp + 1;
+        var freeRoom = [...gs.freeRoom];
+        freeRoom[amp]--;
+        result.add(
+          Node(
+            GameState(
+              cave: cave,
+              freeRoom: freeRoom,
+              canLeaveRoom: gs.canLeaveRoom,
+            ),
+            costs,
+          ),
+        );
+      }
+    }
+  }
+
+  return result;
+}
+
+bool isRouteFree(GameState gs, Route route) {
+  for (var position in route.positions) {
+    if (gs.cave[position] != 0) return false;
+  }
+
+  return true;
+}
+
+Set<Node> fromRoom(GameState gs) {
+  var result = <Node>{};
+
+  for (var leaver in gs.canLeaveRoom) {
+    if (leaver > -1) {
+      var amp = gs.cave[leaver];
+    }
+  }
+
+  return result;
 }
 
 void printCave(GameState gs) {
@@ -18,14 +91,20 @@ void printCave(GameState gs) {
   print(hallway);
   for (var b = 0; b < 4; b++) {
     print('  ' +
-        chars[gs.cave[7 + b]] +
+        chars[gs.cave[roomEntrances[0] + b]] +
         ' ' +
-        chars[gs.cave[11 + b]] +
+        chars[gs.cave[roomEntrances[1] + b]] +
         ' ' +
-        chars[gs.cave[15 + b]] +
+        chars[gs.cave[roomEntrances[2] + b]] +
         ' ' +
-        chars[gs.cave[19 + b]]);
+        chars[gs.cave[roomEntrances[3] + b]]);
   }
+}
+
+class Node {
+  final GameState state;
+  final int costs;
+  Node(this.state, this.costs);
 }
 
 class Route {
@@ -205,3 +284,37 @@ const hallwayToRoom = [
   ],
 ];
 
+const roomEntrances = [7, 11, 15, 19];
+
+const moveCosts = [1, 10, 100, 1000];
+
+const allowedHallway = [
+  // Amphipod A
+  [
+    [0, 1, 2, 3, 4, 5, 6], // Leaving room A
+    [0, 1, 3, 4, 5, 6], // Leaving room B
+    [0, 1, 4, 5, 6], // Leaving room C
+    [0, 1, 5, 6], // Leaving room D
+  ],
+  // Amphipod B
+  [
+    [0, 1, 3, 4, 5, 6], // Leaving room A
+    [0, 1, 2, 3, 4, 5, 6], // ...
+    [0, 1, 2, 4, 5, 6],
+    [0, 1, 2, 5, 6],
+  ],
+  // Amphipod C
+  [
+    [0, 1, 4, 5, 6],
+    [0, 1, 2, 4, 5, 6],
+    [0, 1, 2, 3, 4, 5, 6],
+    [0, 1, 2, 3, 5, 6],
+  ],
+  // Amphipod D
+  [
+    [0, 1, 5, 6],
+    [0, 1, 2, 5, 6],
+    [0, 1, 2, 3, 5, 6],
+    [0, 1, 2, 3, 4, 5, 6],
+  ],
+];
