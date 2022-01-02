@@ -1,55 +1,67 @@
 void main() {
   // var s1 = GameState(
   //   cave: [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4],
-  //   canLeaveRoom: [7, 11, 15, 19],
-  //   freeRoom: [-1, -1, -1, -1],
+  //   vacatableRooms: [-1, -1, -1, -1],
+  //   accessibleRooms: [-1, -1, -1, -1],
   // );
 
-  // printCave(s1);
-
-  var s2 = GameState(
-    cave: [0, 0, 0, 0, 0, 4, 1, 0, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 0, 4, 4, 4],
-    canLeaveRoom: [-1, 11, 15, -1],
-    freeRoom: [0, -1, -1, 0],
+  var puzzle = GameState(
+    cave: [0, 0, 0, 0, 0, 0, 0, 2, 4, 4, 1, 3, 3, 2, 4, 2, 2, 1, 3, 4, 1, 3, 1],
+    vacatableRooms: [0, 0, 0, 0],
+    accessibleRooms: [-1, -1, -1, -1],
   );
 
-  var nodes = fromHallWay(s2);
-  print(nodes.first.costs);
+  printCave(puzzle);
 
-  var n2 = fromHallWay(nodes.first.state);
-  print(n2.first.state.cave);
+  var r = fromRoomToHallway(puzzle);
+  print(r.length);
 }
 
 Set<GameState> moves(GameState gs) {
   var result = <GameState>{};
 
-  // result.addAll(fromRoom(gs));
-  // result.addAll(fromHallWay(gs));
-
   return result;
 }
 
-Set<Node> fromHallWay(GameState gs) {
+Set<Node> fromRoomToRoom(GameState gs) {
   var result = <Node>{};
 
-  for (int i = 0; i <= 6; i++) {
-    var amp = gs.cave[i] - 1;
-    if (amp >= 0) {
-      var route = hallwayToRoom[amp][i];
-      if (gs.freeRoom[amp] > -1 && isRouteFree(gs, route)) {
-        var costs = (route.length + gs.freeRoom[amp] + 1) * moveCosts[amp];
+  for (int roomSection = 0; roomSection < 4; roomSection++) {
+    var roomToBeLeft = gs.vacatableRooms[roomSection];
+    if (roomToBeLeft > -1) {
+      var amp = gs.cave[roomToBeLeft + roomEntrances[roomSection]] - 1;
+      var route = roomToRoom[roomSection][amp];
+      var roomToOccupie = gs.accessibleRooms[amp];
+      if (roomToOccupie > -1 && isRouteFree(gs, route.positions)) {
+        var costs = (route.length + roomToBeLeft + 1 + roomToOccupie + 1) *
+            moveCosts[amp];
 
         var cave = [...gs.cave];
-        cave[i] = 0;
-        cave[roomEntrances[amp] + gs.freeRoom[amp]] = amp + 1;
-        var freeRoom = [...gs.freeRoom];
-        freeRoom[amp]--;
+        cave[roomToBeLeft + roomEntrances[roomSection]] = 0;
+        cave[roomEntrances[roomSection] + roomToOccupie] = amp + 1;
+
+        // This assumes none of the 'deepest' rooms (10,14,18,22) have the
+        // right occupant at the start of the game.
+        var accessibleRooms =
+            roomToBeLeft == 3 ? [...gs.accessibleRooms] : gs.accessibleRooms;
+        if (roomToBeLeft == 3) {
+          accessibleRooms[roomSection] = 3;
+        }
+
+        accessibleRooms[amp]--;
+
+        var vacatableRooms = [...gs.vacatableRooms];
+        if (roomToBeLeft == 3) {
+          vacatableRooms[roomSection] = -1;
+        } else {
+          vacatableRooms[roomSection]++;
+        }
         result.add(
           Node(
             GameState(
               cave: cave,
-              freeRoom: freeRoom,
-              canLeaveRoom: gs.canLeaveRoom,
+              accessibleRooms: accessibleRooms,
+              vacatableRooms: vacatableRooms,
             ),
             costs,
           ),
@@ -61,24 +73,94 @@ Set<Node> fromHallWay(GameState gs) {
   return result;
 }
 
-bool isRouteFree(GameState gs, Route route) {
-  for (var position in route.positions) {
-    if (gs.cave[position] != 0) return false;
-  }
-
-  return true;
-}
-
-Set<Node> fromRoom(GameState gs) {
+Set<Node> fromRoomToHallway(GameState gs) {
   var result = <Node>{};
 
-  for (var leaver in gs.canLeaveRoom) {
-    if (leaver > -1) {
-      var amp = gs.cave[leaver];
+  for (int roomSection = 0; roomSection < 4; roomSection++) {
+    var roomToBeLeft = gs.vacatableRooms[roomSection];
+    if (roomToBeLeft > -1) {
+      var amp = gs.cave[roomToBeLeft + roomEntrances[roomSection]] - 1;
+      var options = allowedHallway[amp][roomSection];
+      for (var candidate in options) {
+        var route = hallwayToRoom[amp][candidate];
+        if (gs.cave[candidate] == 0 && isRouteFree(gs, route.positions)) {
+          var costs = (route.length + roomToBeLeft + 1) + moveCosts[amp];
+
+          var cave = [...gs.cave];
+          cave[roomToBeLeft + roomEntrances[roomSection]] = 0;
+          cave[candidate] = amp + 1;
+
+          // This assumes none of the 'deepest' rooms (10,14,18,22) have the
+          // right occupant at the start of the game.
+          var accessibleRooms =
+              roomToBeLeft == 3 ? [...gs.accessibleRooms] : gs.accessibleRooms;
+          if (roomToBeLeft == 3) {
+            accessibleRooms[roomSection] = 3;
+          }
+
+          var vacatableRooms = [...gs.vacatableRooms];
+          if (roomToBeLeft == 3) {
+            vacatableRooms[roomSection] = -1;
+          } else {
+            vacatableRooms[roomSection]++;
+          }
+          result.add(
+            Node(
+              GameState(
+                cave: cave,
+                accessibleRooms: accessibleRooms,
+                vacatableRooms: vacatableRooms,
+              ),
+              costs,
+            ),
+          );
+        }
+      }
     }
   }
 
   return result;
+}
+
+Set<Node> fromHallWayToRoom(GameState gs) {
+  var result = <Node>{};
+
+  for (int hallwayPos = 0; hallwayPos <= 6; hallwayPos++) {
+    var amp = gs.cave[hallwayPos] - 1;
+    if (amp >= 0) {
+      var route = hallwayToRoom[amp][hallwayPos];
+      if (gs.accessibleRooms[amp] > -1 && isRouteFree(gs, route.positions)) {
+        var costs =
+            (route.length + gs.accessibleRooms[amp] + 1) * moveCosts[amp];
+
+        var cave = [...gs.cave];
+        cave[hallwayPos] = 0;
+        cave[roomEntrances[amp] + gs.accessibleRooms[amp]] = amp + 1;
+        var accessibleRooms = [...gs.accessibleRooms];
+        accessibleRooms[amp]--;
+        result.add(
+          Node(
+            GameState(
+              cave: cave,
+              accessibleRooms: accessibleRooms,
+              vacatableRooms: gs.vacatableRooms,
+            ),
+            costs,
+          ),
+        );
+      }
+    }
+  }
+
+  return result;
+}
+
+bool isRouteFree(GameState gs, List<int> positions) {
+  for (var position in positions) {
+    if (gs.cave[position] != 0) return false;
+  }
+
+  return true;
 }
 
 void printCave(GameState gs) {
@@ -113,20 +195,68 @@ class Route {
   const Route(this.positions, this.length);
 }
 
+bool sanityCheck(
+  List<int> cave,
+  List<int> accessibleRooms,
+  List<int> vacatableRooms,
+) {
+  if (cave.length != 23) {
+    throw Exception('cave length: ${cave.length}');
+  }
+  if (vacatableRooms.length != 4) {
+    throw Exception('vacatableRooms length: ${vacatableRooms.length}');
+  }
+  if (accessibleRooms.length != 4) {
+    throw Exception('accessibleRooms length: ${accessibleRooms.length}');
+  }
+
+  for (var roomSection = 0; roomSection < 4; roomSection++) {
+    var vacatableRoom = -1;
+    var sectionFinished = true;
+
+    var accessibleRoom = -1;
+    var accessibleFlag = true;
+    for (var room = 3; room >= 0; room--) {
+      var occupant = cave[roomEntrances[roomSection] + room];
+      if (accessibleFlag && occupant == 0) {
+        accessibleRoom = room;
+      } else if (occupant != (roomSection + 1)) {
+        accessibleFlag = false;
+      }
+
+      sectionFinished = sectionFinished && (occupant == roomSection + 1);
+      if (!sectionFinished && occupant != 0) {
+        vacatableRoom = room;
+      }
+    }
+
+    if (accessibleRooms[roomSection] != accessibleRoom) {
+      throw Exception('wrong accessible room in section: $roomSection');
+    }
+
+    if (vacatableRooms[roomSection] != vacatableRoom) {
+      throw Exception('wrong vacatable room in section: $roomSection');
+    }
+  }
+
+  return true;
+}
+
 class GameState {
   final List<int> cave;
-  final List<int> canLeaveRoom;
-  final List<int> freeRoom;
+  final List<int> vacatableRooms;
+  final List<int> accessibleRooms;
   final int _hash;
 
   GameState({
     required this.cave,
-    required this.canLeaveRoom,
-    required this.freeRoom,
-  }) : _hash = _calcHash(cave);
+    required this.vacatableRooms,
+    required this.accessibleRooms,
+  }) : _hash = _calcHash(cave) {
+    assert(sanityCheck(cave, accessibleRooms, vacatableRooms));
+  }
 
   static int _calcHash(cave) {
-    assert(cave.length == 23);
     var aa = [0, 0, 0, 0];
     var bb = [0, 0, 0, 0];
     var cc = [0, 0, 0, 0];
@@ -147,7 +277,7 @@ class GameState {
         _enumeratedDistribution(dd);
   }
 
-  // max value is 8854, which fits in a 14 bits binary number
+  // max value is 8854, which fits in a 14 bits
   static int _enumeratedDistribution(List<int> nrs) =>
       _nChoose4[nrs[0]] + _nChoose3[nrs[1]] + _nChoose2[nrs[2]] + nrs[3];
 
@@ -316,5 +446,36 @@ const allowedHallway = [
     [0, 1, 2, 5, 6],
     [0, 1, 2, 3, 5, 6],
     [0, 1, 2, 3, 4, 5, 6],
+  ],
+];
+
+const roomToRoom = [
+  [
+    // From room A
+    Route([], -1), // to room A
+    Route([2], 3), // to room B
+    Route([2, 3], 5), // to room C
+    Route([2, 3, 4], 7), // to room D
+  ],
+  [
+    // From room B
+    Route([2], 3), // to toom A
+    Route([], -1), // ...
+    Route([3], 3),
+    Route([3, 4], 5),
+  ],
+  [
+    // From room C
+    Route([2, 3], 5),
+    Route([3], 3),
+    Route([], -1),
+    Route([4], 3),
+  ],
+  [
+    // From room D
+    Route([2, 3, 4], 7),
+    Route([3, 4], 5),
+    Route([4], 3), // ...
+    Route([], -1), // to room D
   ],
 ];
