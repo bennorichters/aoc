@@ -7,15 +7,21 @@ void main() {
     accessibleRooms: [-1, -1, -1, -1],
   );
 
+  // var puzzle = GameState(
+  //   cave: [0, 0, 0, 0, 0, 0, 0, 2, 4, 4, 1, 3, 3, 2, 4, 2, 2, 1, 3, 4, 1, 3, 1],
+  //   vacatableRooms: [0, 0, 0, 0],
+  //   accessibleRooms: [-1, -1, -1, -1],
+  // );
+
   var puzzle = GameState(
-    cave: [0, 0, 0, 0, 0, 0, 0, 2, 4, 4, 1, 3, 3, 2, 4, 2, 2, 1, 3, 4, 1, 3, 1],
+    cave: [0, 0, 0, 0, 0, 0, 0, 3, 4, 4, 2, 1, 3, 2, 1, 2, 2, 1, 4, 4, 1, 3, 3],
     vacatableRooms: [0, 0, 0, 0],
     accessibleRooms: [-1, -1, -1, -1],
   );
 
   QueueElement? result;
   var visited = <GameState, int>{};
-  var queue = PriorityQueue<QueueElement>()..add(QueueElement(puzzle, 0, null));
+  var queue = PriorityQueue<QueueElement>()..add(QueueElement(puzzle, 0));
   while (queue.isNotEmpty) {
     var node = queue.removeFirst();
     if (result != null && node.costs >= result.costs) continue;
@@ -36,22 +42,18 @@ void main() {
     queue.addAll(moves(node));
   }
 
-  var element = result;
-  while (element != null) {
-    printCave(element.state.cave);
-    print(element.costs);
-    print('---------------------------');
-    element = element.prev;
-  }
+  print(result!.costs);
 }
 
 Set<QueueElement> moves(QueueElement node) {
   var result = <QueueElement>{};
 
   result.addAll(fromRoomToRoom(node));
-  result.addAll(fromHallWayToRoom(node));
   if (result.isEmpty) {
-    result.addAll(fromRoomToHallway(node));
+    result.addAll(fromHallWayToRoom(node));
+    if (result.isEmpty) {
+      result.addAll(fromRoomToHallway(node));
+    }
   }
 
   return result;
@@ -97,7 +99,6 @@ Set<QueueElement> fromRoomToRoom(QueueElement element) {
               vacatableRooms: vacatableRooms,
             ),
             rCosts,
-            element,
           ),
         );
       }
@@ -147,7 +148,6 @@ Set<QueueElement> fromRoomToHallway(QueueElement element) {
                 vacatableRooms: vacatableRooms,
               ),
               rCosts,
-              element,
             ),
           );
         }
@@ -194,7 +194,6 @@ Set<QueueElement> fromHallWayToRoom(QueueElement element) {
               vacatableRooms: gs.vacatableRooms,
             ),
             rCosts,
-            element,
           ),
         );
       }
@@ -235,8 +234,7 @@ void printCave(List<int> cave) {
 class QueueElement implements Comparable<QueueElement> {
   final GameState state;
   final int costs;
-  final QueueElement? prev;
-  QueueElement(this.state, this.costs, this.prev);
+  QueueElement(this.state, this.costs);
 
   @override
   int compareTo(QueueElement other) {
@@ -250,62 +248,6 @@ class Route {
   const Route(this.positions, this.length);
 }
 
-bool sanityCheck(
-  List<int> cave,
-  List<int> accessibleRooms,
-  List<int> vacatableRooms,
-) {
-  if (cave.length != 23) {
-    throw Exception('cave length: ${cave.length}');
-  }
-  if (vacatableRooms.length != 4) {
-    throw Exception('vacatableRooms length: ${vacatableRooms.length}');
-  }
-  if (accessibleRooms.length != 4) {
-    throw Exception('accessibleRooms length: ${accessibleRooms.length}');
-  }
-
-  for (var roomSection = 0; roomSection < 4; roomSection++) {
-    var vacatableRoom = -1;
-    var sectionFinished = true;
-
-    var accessibleRoom = -1;
-    var accessibleFlag = true;
-    for (var room = 3; room >= 0; room--) {
-      var occupant = cave[roomEntrances[roomSection] + room];
-      if (accessibleFlag && occupant == 0) {
-        accessibleRoom = room;
-        accessibleFlag = false;
-      } else if (occupant != (roomSection + 1)) {
-        accessibleFlag = false;
-      }
-
-      sectionFinished = sectionFinished && (occupant == roomSection + 1);
-      if (!sectionFinished && occupant != 0) {
-        vacatableRoom = room;
-      }
-    }
-
-    if (accessibleRooms[roomSection] != accessibleRoom) {
-      printCave(cave);
-      print(cave);
-      print(accessibleRooms);
-      print(roomSection);
-      print(accessibleRoom);
-      throw Exception('wrong accessible room in section: $roomSection');
-    }
-
-    if (vacatableRooms[roomSection] != vacatableRoom) {
-      print(vacatableRooms);
-      print(roomSection);
-      print(vacatableRoom);
-      throw Exception('wrong vacatable room in section: $roomSection');
-    }
-  }
-
-  return true;
-}
-
 class GameState {
   final List<int> cave;
   final List<int> vacatableRooms;
@@ -316,9 +258,7 @@ class GameState {
     required this.cave,
     required this.vacatableRooms,
     required this.accessibleRooms,
-  }) : _hash = _calcHash(cave) {
-    assert(sanityCheck(cave, accessibleRooms, vacatableRooms));
-  }
+  }) : _hash = _calcHash(cave);
 
   static int _calcHash(cave) {
     var aa = [0, 0, 0, 0];
