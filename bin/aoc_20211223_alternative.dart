@@ -234,35 +234,11 @@ void printCave(List<int> cave) {
 class QueueElement implements Comparable<QueueElement> {
   final GameState state;
   final int costs;
-  final int remainingCosts;
-  QueueElement(this.state, this.costs)
-      : remainingCosts = calcRemainingCosts(state.cave);
-
-  static int calcRemainingCosts(List<int> cave) {
-    int result = 0;
-    for (int hallway = 0; hallway <= 6; hallway++) {
-      if (cave[hallway] != 0) {
-        int amp = cave[hallway] - 1;
-        result += (hallwayToRoom[amp][hallway].length + 1) * moveCosts[amp];
-      }
-    }
-
-    for (int roomSection = 0; roomSection <= 3; roomSection++) {
-      for (int room = 0; room <= 3; room++) {
-        int cavePos = roomEntrances[roomSection] + room;
-        int amp = cave[cavePos] - 1;
-        if (amp >= 0 && amp != roomSection) {
-          result += roomToRoom[roomSection][amp].length * moveCosts[amp];
-        }
-      }
-    }
-
-    return result;
-  }
+  QueueElement(this.state, this.costs);
 
   @override
   int compareTo(QueueElement other) {
-    return (costs + remainingCosts) - (other.costs + other.remainingCosts);
+    return costs-other.costs;
   }
 }
 
