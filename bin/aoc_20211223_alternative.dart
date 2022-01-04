@@ -104,10 +104,10 @@ Set<QueueElement> fromRoomToHallway(GameState gs, int costs) {
       var amp = gs.cave[roomToVacate + roomEntrances[roomSection]] - 1;
       var options = allowedHallway[amp][roomSection];
       for (var candidate in options) {
-        var route = hallwayToRoom[amp][candidate];
+        var route = hallwayToRoom[roomSection][candidate];
         if (gs.cave[candidate] == 0 && isRouteFree(gs, route.positions)) {
           var rCosts =
-              costs + (route.length + roomToVacate + 1) + moveCosts[amp];
+              costs + (route.length + roomToVacate + 1) * moveCosts[amp];
 
           var cave = [...gs.cave];
           cave[roomToVacate + roomEntrances[roomSection]] = 0;
@@ -166,6 +166,14 @@ Set<QueueElement> fromHallWayToRoom(GameState gs, int costs) {
         cave[roomEntrances[amp] + gs.accessibleRooms[amp]] = amp + 1;
         var accessibleRooms = [...gs.accessibleRooms];
         accessibleRooms[amp]--;
+
+        printCave(gs.cave);
+        print(costs);
+        print('-----------------');
+        printCave(cave);
+        print(rCosts);
+        throw Exception('STOP!');
+
         result.add(
           QueueElement(
             GameState(
