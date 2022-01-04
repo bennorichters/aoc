@@ -1,9 +1,12 @@
+import 'dart:math';
+import 'package:collection/collection.dart';
+
 void main() {
-  // var s1 = GameState(
-  //   cave: [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4],
-  //   vacatableRooms: [-1, -1, -1, -1],
-  //   accessibleRooms: [-1, -1, -1, -1],
-  // );
+  var endState = GameState(
+    cave: [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4],
+    vacatableRooms: [-1, -1, -1, -1],
+    accessibleRooms: [-1, -1, -1, -1],
+  );
 
   var puzzle = GameState(
     cave: [0, 0, 0, 0, 0, 0, 0, 2, 4, 4, 1, 3, 3, 2, 4, 2, 2, 1, 3, 4, 1, 3, 1],
@@ -11,29 +14,42 @@ void main() {
     accessibleRooms: [-1, -1, -1, -1],
   );
 
-  printCave(puzzle);
+  var result = -1;
+  var visited = <GameState, int>{};
+  var queue = PriorityQueue<QueueElement>()..add(QueueElement(puzzle, 0));
+  while (queue.isNotEmpty) {
+    var node = queue.removeFirst();
+    if (result > -1 && node.costs >= result) continue;
+    if (visited.containsKey(node.state) && visited[node.state]! <= node.costs) {
+      continue;
+    }
 
-  var r = fromRoomToHallway(puzzle);
-  var a = r.first.state;
-  printCave(a);
+    if (node.state == endState) {
+      result = result == -1 ? node.costs : min(result, node.costs);
+      continue;
+    }
 
-  r = fromRoomToHallway(a);
-  var b = r.first.state;
-  printCave(b);
+    visited[node.state] = node.costs;
+    queue.addAll(moves(node));
+  }
 
-  r = fromRoomToHallway(b);
-  var c = r.first.state;
-  printCave(c);
+  print(result);
 }
 
-Set<GameState> moves(GameState gs) {
-  var result = <GameState>{};
+Set<QueueElement> moves(QueueElement node) {
+  var result = <QueueElement>{};
+
+  result.addAll(fromRoomToRoom(node.state, node.costs));
+  result.addAll(fromHallWayToRoom(node.state, node.costs));
+  if (result.isEmpty) {
+    result.addAll(fromRoomToHallway(node.state, node.costs));
+  }
 
   return result;
 }
 
-Set<Node> fromRoomToRoom(GameState gs) {
-  var result = <Node>{};
+Set<QueueElement> fromRoomToRoom(GameState gs, int costs) {
+  var result = <QueueElement>{};
 
   for (int roomSection = 0; roomSection < 4; roomSection++) {
     var roomToVacate = gs.vacatableRooms[roomSection];
@@ -42,17 +58,20 @@ Set<Node> fromRoomToRoom(GameState gs) {
       var route = roomToRoom[roomSection][amp];
       var roomToOccupie = gs.accessibleRooms[amp];
       if (roomToOccupie > -1 && isRouteFree(gs, route.positions)) {
-        var costs = (route.length + roomToVacate + 1 + roomToOccupie + 1) *
-            moveCosts[amp];
+        var rCosts = costs +
+            (route.length + roomToVacate + 1 + roomToOccupie + 1) *
+                moveCosts[amp];
 
         var cave = [...gs.cave];
-        cave[roomToVacate + roomEntrances[roomSection]] = 0;
-        cave[roomEntrances[roomSection] + roomToOccupie] = amp + 1;
+        cave[roomEntrances[roomSection] + roomToVacate] = 0;
+        cave[roomEntrances[amp] + roomToOccupie] = amp + 1;
 
         var accessibleRooms = [...gs.accessibleRooms];
         var vacatableRooms = [...gs.vacatableRooms];
         if (isSectionAccessible(cave, roomSection, roomToVacate)) {
-          accessibleRooms[roomSection]++;
+          accessibleRooms[roomSection] = roomToVacate;
+          vacatableRooms[roomSection] = -1;
+        } else if (roomToVacate == 3) {
           vacatableRooms[roomSection] = -1;
         } else {
           vacatableRooms[roomSection]++;
@@ -60,13 +79,13 @@ Set<Node> fromRoomToRoom(GameState gs) {
         accessibleRooms[amp]--; // just arrived in this section
 
         result.add(
-          Node(
+          QueueElement(
             GameState(
               cave: cave,
               accessibleRooms: accessibleRooms,
               vacatableRooms: vacatableRooms,
             ),
-            costs,
+            rCosts,
           ),
         );
       }
@@ -76,8 +95,8 @@ Set<Node> fromRoomToRoom(GameState gs) {
   return result;
 }
 
-Set<Node> fromRoomToHallway(GameState gs) {
-  var result = <Node>{};
+Set<QueueElement> fromRoomToHallway(GameState gs, int costs) {
+  var result = <QueueElement>{};
 
   for (int roomSection = 0; roomSection < 4; roomSection++) {
     var roomToVacate = gs.vacatableRooms[roomSection];
@@ -87,7 +106,8 @@ Set<Node> fromRoomToHallway(GameState gs) {
       for (var candidate in options) {
         var route = hallwayToRoom[amp][candidate];
         if (gs.cave[candidate] == 0 && isRouteFree(gs, route.positions)) {
-          var costs = (route.length + roomToVacate + 1) + moveCosts[amp];
+          var rCosts =
+              costs + (route.length + roomToVacate + 1) + moveCosts[amp];
 
           var cave = [...gs.cave];
           cave[roomToVacate + roomEntrances[roomSection]] = 0;
@@ -98,18 +118,20 @@ Set<Node> fromRoomToHallway(GameState gs) {
           if (isSectionAccessible(cave, roomSection, roomToVacate)) {
             accessibleRooms[roomSection] = roomToVacate;
             vacatableRooms[roomSection] = -1;
+          } else if (roomToVacate == 3) {
+            vacatableRooms[roomSection] = -1;
           } else {
             vacatableRooms[roomSection]++;
           }
 
           result.add(
-            Node(
+            QueueElement(
               GameState(
                 cave: cave,
                 accessibleRooms: accessibleRooms,
                 vacatableRooms: vacatableRooms,
               ),
-              costs,
+              rCosts,
             ),
           );
         }
@@ -128,15 +150,15 @@ bool isSectionAccessible(List<int> cave, int section, int vacatedRoom) {
   return true;
 }
 
-Set<Node> fromHallWayToRoom(GameState gs) {
-  var result = <Node>{};
+Set<QueueElement> fromHallWayToRoom(GameState gs, int costs) {
+  var result = <QueueElement>{};
 
   for (int hallwayPos = 0; hallwayPos <= 6; hallwayPos++) {
     var amp = gs.cave[hallwayPos] - 1;
     if (amp >= 0) {
       var route = hallwayToRoom[amp][hallwayPos];
       if (gs.accessibleRooms[amp] > -1 && isRouteFree(gs, route.positions)) {
-        var costs =
+        var rCosts = costs +
             (route.length + gs.accessibleRooms[amp] + 1) * moveCosts[amp];
 
         var cave = [...gs.cave];
@@ -145,13 +167,13 @@ Set<Node> fromHallWayToRoom(GameState gs) {
         var accessibleRooms = [...gs.accessibleRooms];
         accessibleRooms[amp]--;
         result.add(
-          Node(
+          QueueElement(
             GameState(
               cave: cave,
               accessibleRooms: accessibleRooms,
               vacatableRooms: gs.vacatableRooms,
             ),
-            costs,
+            rCosts,
           ),
         );
       }
@@ -169,30 +191,35 @@ bool isRouteFree(GameState gs, List<int> positions) {
   return true;
 }
 
-void printCave(GameState gs) {
+void printCave(List<int> cave) {
   const chars = ['.', 'A', 'B', 'C', 'D'];
   String hallway = '';
   for (int i = 0; i < 7; i++) {
-    hallway += chars[gs.cave[i]];
-    if (i >= 3 && i <= 6) hallway += '.';
+    hallway += chars[cave[i]];
+    if (i >= 1 && i <= 4) hallway += '.';
   }
   print(hallway);
   for (var b = 0; b < 4; b++) {
     print('  ' +
-        chars[gs.cave[roomEntrances[0] + b]] +
+        chars[cave[roomEntrances[0] + b]] +
         ' ' +
-        chars[gs.cave[roomEntrances[1] + b]] +
+        chars[cave[roomEntrances[1] + b]] +
         ' ' +
-        chars[gs.cave[roomEntrances[2] + b]] +
+        chars[cave[roomEntrances[2] + b]] +
         ' ' +
-        chars[gs.cave[roomEntrances[3] + b]]);
+        chars[cave[roomEntrances[3] + b]]);
   }
 }
 
-class Node {
+class QueueElement implements Comparable<QueueElement> {
   final GameState state;
   final int costs;
-  Node(this.state, this.costs);
+  QueueElement(this.state, this.costs);
+
+  @override
+  int compareTo(QueueElement other) {
+    return costs - other.costs;
+  }
 }
 
 class Route {
@@ -238,6 +265,8 @@ bool sanityCheck(
     }
 
     if (accessibleRooms[roomSection] != accessibleRoom) {
+      printCave(cave);
+      print(cave);
       print(accessibleRooms);
       print(roomSection);
       print(accessibleRoom);
@@ -282,7 +311,7 @@ class GameState {
       if (cave[i] == 3) cc[ci++] = i;
       if (cave[i] == 4) dd[di++] = i;
     }
-    assert(ai == 4 && bi == 4 && ci == 4 && di == 4);
+    assert(ai == 4 && bi == 4 && ci == 4 && di == 4, '$cave');
 
     return (_enumeratedDistribution(aa) << 42) +
         (_enumeratedDistribution(bb) << 28) +
