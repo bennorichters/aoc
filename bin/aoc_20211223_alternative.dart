@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:collection/collection.dart';
 
 void main() {
@@ -14,18 +13,22 @@ void main() {
     accessibleRooms: [-1, -1, -1, -1],
   );
 
-  var result = -1;
+  QueueElement? result;
   var visited = <GameState, int>{};
-  var queue = PriorityQueue<QueueElement>()..add(QueueElement(puzzle, 0));
+  var queue = PriorityQueue<QueueElement>()..add(QueueElement(puzzle, 0, null));
   while (queue.isNotEmpty) {
     var node = queue.removeFirst();
-    if (result > -1 && node.costs >= result) continue;
+    if (result != null && node.costs >= result.costs) continue;
     if (visited.containsKey(node.state) && visited[node.state]! <= node.costs) {
       continue;
     }
 
     if (node.state == endState) {
-      result = result == -1 ? node.costs : min(result, node.costs);
+      if (result == null) {
+        result = node;
+      } else if (node.costs < result.costs) {
+        result = node;
+      }
       continue;
     }
 
@@ -33,23 +36,32 @@ void main() {
     queue.addAll(moves(node));
   }
 
-  print(result);
+  var element = result;
+  while (element != null) {
+    printCave(element.state.cave);
+    print(element.costs);
+    print('---------------------------');
+    element = element.prev;
+  }
 }
 
 Set<QueueElement> moves(QueueElement node) {
   var result = <QueueElement>{};
 
-  result.addAll(fromRoomToRoom(node.state, node.costs));
-  result.addAll(fromHallWayToRoom(node.state, node.costs));
+  result.addAll(fromRoomToRoom(node));
+  result.addAll(fromHallWayToRoom(node));
   if (result.isEmpty) {
-    result.addAll(fromRoomToHallway(node.state, node.costs));
+    result.addAll(fromRoomToHallway(node));
   }
 
   return result;
 }
 
-Set<QueueElement> fromRoomToRoom(GameState gs, int costs) {
+Set<QueueElement> fromRoomToRoom(QueueElement element) {
   var result = <QueueElement>{};
+
+  var gs = element.state;
+  var costs = element.costs;
 
   for (int roomSection = 0; roomSection < 4; roomSection++) {
     var roomToVacate = gs.vacatableRooms[roomSection];
@@ -59,8 +71,7 @@ Set<QueueElement> fromRoomToRoom(GameState gs, int costs) {
       var roomToOccupie = gs.accessibleRooms[amp];
       if (roomToOccupie > -1 && isRouteFree(gs, route.positions)) {
         var rCosts = costs +
-            (route.length + roomToVacate + 1 + roomToOccupie + 1) *
-                moveCosts[amp];
+            (route.length + roomToVacate + roomToOccupie + 1) * moveCosts[amp];
 
         var cave = [...gs.cave];
         cave[roomEntrances[roomSection] + roomToVacate] = 0;
@@ -86,6 +97,7 @@ Set<QueueElement> fromRoomToRoom(GameState gs, int costs) {
               vacatableRooms: vacatableRooms,
             ),
             rCosts,
+            element,
           ),
         );
       }
@@ -95,8 +107,11 @@ Set<QueueElement> fromRoomToRoom(GameState gs, int costs) {
   return result;
 }
 
-Set<QueueElement> fromRoomToHallway(GameState gs, int costs) {
+Set<QueueElement> fromRoomToHallway(QueueElement element) {
   var result = <QueueElement>{};
+
+  var gs = element.state;
+  var costs = element.costs;
 
   for (int roomSection = 0; roomSection < 4; roomSection++) {
     var roomToVacate = gs.vacatableRooms[roomSection];
@@ -132,6 +147,7 @@ Set<QueueElement> fromRoomToHallway(GameState gs, int costs) {
                 vacatableRooms: vacatableRooms,
               ),
               rCosts,
+              element,
             ),
           );
         }
@@ -150,8 +166,11 @@ bool isSectionAccessible(List<int> cave, int section, int vacatedRoom) {
   return true;
 }
 
-Set<QueueElement> fromHallWayToRoom(GameState gs, int costs) {
+Set<QueueElement> fromHallWayToRoom(QueueElement element) {
   var result = <QueueElement>{};
+
+  var gs = element.state;
+  var costs = element.costs;
 
   for (int hallwayPos = 0; hallwayPos <= 6; hallwayPos++) {
     var amp = gs.cave[hallwayPos] - 1;
@@ -167,13 +186,6 @@ Set<QueueElement> fromHallWayToRoom(GameState gs, int costs) {
         var accessibleRooms = [...gs.accessibleRooms];
         accessibleRooms[amp]--;
 
-        printCave(gs.cave);
-        print(costs);
-        print('-----------------');
-        printCave(cave);
-        print(rCosts);
-        throw Exception('STOP!');
-
         result.add(
           QueueElement(
             GameState(
@@ -182,6 +194,7 @@ Set<QueueElement> fromHallWayToRoom(GameState gs, int costs) {
               vacatableRooms: gs.vacatableRooms,
             ),
             rCosts,
+            element,
           ),
         );
       }
@@ -222,7 +235,8 @@ void printCave(List<int> cave) {
 class QueueElement implements Comparable<QueueElement> {
   final GameState state;
   final int costs;
-  QueueElement(this.state, this.costs);
+  final QueueElement? prev;
+  QueueElement(this.state, this.costs, this.prev);
 
   @override
   int compareTo(QueueElement other) {
