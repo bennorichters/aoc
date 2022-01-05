@@ -79,7 +79,7 @@ Set<QueueElement> fromRoomToRoom(QueueElement element) {
   var gs = element.state;
   var costs = element.costs;
 
-  for (var leaver in homeLeavers(gs)) {
+  for (var leaver in roomLeavers(gs)) {
     var route = roomToRoom[leaver.roomSection][leaver.amp];
     var roomToOccupie = gs.accessibleRooms[leaver.amp];
     if (roomToOccupie > -1 && isRouteFree(gs, route.positions)) {
@@ -125,7 +125,7 @@ Set<QueueElement> fromRoomToHallway(QueueElement element) {
   var gs = element.state;
   var costs = element.costs;
 
-  for (var leaver in homeLeavers(gs)) {
+  for (var leaver in roomLeavers(gs)) {
     var options = allowedHallway[leaver.amp][leaver.roomSection];
     for (var candidate in options) {
       var route = hallwayToRoom[leaver.roomSection][candidate];
@@ -164,21 +164,21 @@ Set<QueueElement> fromRoomToHallway(QueueElement element) {
   return result;
 }
 
-class HomeLeaver {
+class RoomLeaver {
   final int roomSection;
   final int room;
   final int amp;
-  HomeLeaver(this.roomSection, this.room, this.amp);
+  RoomLeaver(this.roomSection, this.room, this.amp);
 }
 
-Iterable<HomeLeaver> homeLeavers(GameState gs) {
-  var result = <HomeLeaver>{};
+Iterable<RoomLeaver> roomLeavers(GameState gs) {
+  var result = <RoomLeaver>{};
 
   for (int roomSection = 0; roomSection < 4; roomSection++) {
     var roomToVacate = gs.vacatableRooms[roomSection];
     if (roomToVacate > -1) {
       var amp = gs.cave[roomToVacate + roomEntrances[roomSection]];
-      result.add(HomeLeaver(roomSection, roomToVacate, amp));
+      result.add(RoomLeaver(roomSection, roomToVacate, amp));
     }
   }
 
