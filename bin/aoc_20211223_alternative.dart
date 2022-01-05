@@ -79,31 +79,73 @@ Set<QueueElement> fromRoomToRoom(QueueElement element) {
   var gs = element.state;
   var costs = element.costs;
 
-  for (int roomSection = 0; roomSection < 4; roomSection++) {
-    var roomToVacate = gs.vacatableRooms[roomSection];
-    if (roomToVacate > -1) {
-      var amp = gs.cave[roomToVacate + roomEntrances[roomSection]];
-      var route = roomToRoom[roomSection][amp];
-      var roomToOccupie = gs.accessibleRooms[amp];
-      if (roomToOccupie > -1 && isRouteFree(gs, route.positions)) {
-        var rCosts = costs +
-            (route.length + roomToVacate + roomToOccupie + 1) * moveCosts[amp];
+  for (var leaver in homeLeavers(gs)) {
+    var route = roomToRoom[leaver.roomSection][leaver.amp];
+    var roomToOccupie = gs.accessibleRooms[leaver.amp];
+    if (roomToOccupie > -1 && isRouteFree(gs, route.positions)) {
+      var rCosts = costs +
+          (route.length + leaver.room + roomToOccupie + 1) *
+              moveCosts[leaver.amp];
+
+      var cave = [...gs.cave];
+      cave[leaver.room + roomEntrances[leaver.roomSection]] = -1;
+      cave[roomEntrances[leaver.amp] + roomToOccupie] = leaver.amp;
+
+      var accessibleRooms = [...gs.accessibleRooms];
+      var vacatableRooms = [...gs.vacatableRooms];
+      if (isSectionAccessible(cave, leaver.roomSection, leaver.room)) {
+        accessibleRooms[leaver.roomSection] = leaver.room;
+        vacatableRooms[leaver.roomSection] = -1;
+      } else if (leaver.room == 3) {
+        vacatableRooms[leaver.roomSection] = -1;
+      } else {
+        vacatableRooms[leaver.roomSection]++;
+      }
+      accessibleRooms[leaver.amp]--; // just arrived in this section
+
+      result.add(
+        QueueElement(
+          GameState(
+            cave: cave,
+            accessibleRooms: accessibleRooms,
+            vacatableRooms: vacatableRooms,
+          ),
+          rCosts,
+        ),
+      );
+    }
+  }
+
+  return result;
+}
+
+Set<QueueElement> fromRoomToHallway(QueueElement element) {
+  var result = <QueueElement>{};
+
+  var gs = element.state;
+  var costs = element.costs;
+
+  for (var leaver in homeLeavers(gs)) {
+    var options = allowedHallway[leaver.amp][leaver.roomSection];
+    for (var candidate in options) {
+      var route = hallwayToRoom[leaver.roomSection][candidate];
+      if (gs.cave[candidate] == -1 && isRouteFree(gs, route.positions)) {
+        var rCosts = costs + (route.length + leaver.room + 1) * moveCosts[leaver.amp];
 
         var cave = [...gs.cave];
-        cave[roomEntrances[roomSection] + roomToVacate] = -1;
-        cave[roomEntrances[amp] + roomToOccupie] = amp;
+        cave[leaver.room + roomEntrances[leaver.roomSection]] = -1;
+        cave[candidate] = leaver.amp;
 
         var accessibleRooms = [...gs.accessibleRooms];
         var vacatableRooms = [...gs.vacatableRooms];
-        if (isSectionAccessible(cave, roomSection, roomToVacate)) {
-          accessibleRooms[roomSection] = roomToVacate;
-          vacatableRooms[roomSection] = -1;
-        } else if (roomToVacate == 3) {
-          vacatableRooms[roomSection] = -1;
+        if (isSectionAccessible(cave, leaver.roomSection, leaver.room)) {
+          accessibleRooms[leaver.roomSection] = leaver.room;
+          vacatableRooms[leaver.roomSection] = -1;
+        } else if (leaver.room == 3) {
+          vacatableRooms[leaver.roomSection] = -1;
         } else {
-          vacatableRooms[roomSection]++;
+          vacatableRooms[leaver.roomSection]++;
         }
-        accessibleRooms[amp]--; // just arrived in this section
 
         result.add(
           QueueElement(
@@ -122,50 +164,21 @@ Set<QueueElement> fromRoomToRoom(QueueElement element) {
   return result;
 }
 
-Set<QueueElement> fromRoomToHallway(QueueElement element) {
-  var result = <QueueElement>{};
+class HomeLeaver {
+  final int roomSection;
+  final int room;
+  final int amp;
+  HomeLeaver(this.roomSection, this.room, this.amp);
+}
 
-  var gs = element.state;
-  var costs = element.costs;
+Iterable<HomeLeaver> homeLeavers(GameState gs) {
+  var result = <HomeLeaver>{};
 
   for (int roomSection = 0; roomSection < 4; roomSection++) {
     var roomToVacate = gs.vacatableRooms[roomSection];
     if (roomToVacate > -1) {
       var amp = gs.cave[roomToVacate + roomEntrances[roomSection]];
-      var options = allowedHallway[amp][roomSection];
-      for (var candidate in options) {
-        var route = hallwayToRoom[roomSection][candidate];
-        if (gs.cave[candidate] == -1 && isRouteFree(gs, route.positions)) {
-          var rCosts =
-              costs + (route.length + roomToVacate + 1) * moveCosts[amp];
-
-          var cave = [...gs.cave];
-          cave[roomToVacate + roomEntrances[roomSection]] = -1;
-          cave[candidate] = amp;
-
-          var accessibleRooms = [...gs.accessibleRooms];
-          var vacatableRooms = [...gs.vacatableRooms];
-          if (isSectionAccessible(cave, roomSection, roomToVacate)) {
-            accessibleRooms[roomSection] = roomToVacate;
-            vacatableRooms[roomSection] = -1;
-          } else if (roomToVacate == 3) {
-            vacatableRooms[roomSection] = -1;
-          } else {
-            vacatableRooms[roomSection]++;
-          }
-
-          result.add(
-            QueueElement(
-              GameState(
-                cave: cave,
-                accessibleRooms: accessibleRooms,
-                vacatableRooms: vacatableRooms,
-              ),
-              rCosts,
-            ),
-          );
-        }
-      }
+      result.add(HomeLeaver(roomSection, roomToVacate, amp));
     }
   }
 
