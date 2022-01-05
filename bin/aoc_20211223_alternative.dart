@@ -5,7 +5,7 @@ void main() {
     cave: [
       -1, -1, -1, -1, -1, -1, -1, // hallway
       0, 0, 0, 0, // room A
-      1, 1, 1, 1, //  room B
+      1, 1, 1, 1, // room B
       2, 2, 2, 2, // room C
       3, 3, 3, 3, // room D
     ],
@@ -90,7 +90,7 @@ Set<QueueElement> fromRoomToRoom(QueueElement element) {
       var rgs = afterLeavingRoom(
         gs,
         leaver,
-        roomEntrances[leaver.amp] + roomToOccupie,
+        roomEntrances[leaver.amp] + roomToOccupie
       );
       rgs.accessibleRooms[leaver.amp]--;
 
@@ -301,7 +301,7 @@ class GameState {
         _enumeratedDistribution(dd);
   }
 
-  // max value is 8854, which fits in a 14 bits
+  // max value is 8854, which fits in 14 bits
   static int _enumeratedDistribution(List<int> nrs) =>
       _nChoose4[nrs[0]] + _nChoose3[nrs[1]] + _nChoose2[nrs[2]] + nrs[3];
 
