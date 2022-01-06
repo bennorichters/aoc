@@ -37,12 +37,12 @@ void main() {
     accessibleRooms: [-1, -1, -1, -1],
   );
 
-  var result = 2 * 23 * 1000; // upper boundary
+  var result = -1;
   var visited = <GameState, int>{};
   var queue = PriorityQueue<QueueElement>()..add(QueueElement(puzzle, 0));
   while (queue.isNotEmpty) {
     var node = queue.removeFirst();
-    if (node.costs >= result) break;
+    if (result > -1 && node.costs >= result) break;
     if (visited.containsKey(node.state) && visited[node.state]! <= node.costs) {
       continue;
     }
