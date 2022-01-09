@@ -337,7 +337,6 @@ class GameState {
     190,
     210,
     231,
-    253
   ];
 
   static const _nChoose3 = [
@@ -364,7 +363,6 @@ class GameState {
     1140,
     1330,
     1540,
-    1771
   ];
 
   static const _nChoose4 = [
@@ -391,9 +389,43 @@ class GameState {
     4845,
     5985,
     7315,
-    8855
   ];
 }
+
+const moveCosts = [1, 10, 100, 1000];
+
+const roomEntrances = [7, 11, 15, 19];
+
+const roomToRoom = [
+  [
+    // From room A
+    Route([], -1), // to room A
+    Route([2], 3), // to room B
+    Route([2, 3], 5), // to room C
+    Route([2, 3, 4], 7), // to room D
+  ],
+  [
+    // From room B
+    Route([2], 3), // to toom A
+    Route([], -1), // ...
+    Route([3], 3),
+    Route([3, 4], 5),
+  ],
+  [
+    // From room C
+    Route([2, 3], 5),
+    Route([3], 3),
+    Route([], -1),
+    Route([4], 3),
+  ],
+  [
+    // From room D
+    Route([2, 3, 4], 7),
+    Route([3, 4], 5),
+    Route([4], 3), // ...
+    Route([], -1), // to room D
+  ],
+];
 
 const hallwayToRoom = [
   [
@@ -438,10 +470,6 @@ const hallwayToRoom = [
   ],
 ];
 
-const roomEntrances = [7, 11, 15, 19];
-
-const moveCosts = [1, 10, 100, 1000];
-
 const allowedHallway = [
   // Amphipod A
   [
@@ -473,33 +501,3 @@ const allowedHallway = [
   ],
 ];
 
-const roomToRoom = [
-  [
-    // From room A
-    Route([], -1), // to room A
-    Route([2], 3), // to room B
-    Route([2, 3], 5), // to room C
-    Route([2, 3, 4], 7), // to room D
-  ],
-  [
-    // From room B
-    Route([2], 3), // to toom A
-    Route([], -1), // ...
-    Route([3], 3),
-    Route([3, 4], 5),
-  ],
-  [
-    // From room C
-    Route([2, 3], 5),
-    Route([3], 3),
-    Route([], -1),
-    Route([4], 3),
-  ],
-  [
-    // From room D
-    Route([2, 3, 4], 7),
-    Route([3, 4], 5),
-    Route([4], 3), // ...
-    Route([], -1), // to room D
-  ],
-];
